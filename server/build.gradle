@@ -1,0 +1,94 @@
+//引入spring boot gradle插件和spring io的依赖管理插件
+buildscript {
+    ext {
+        springIOVersion = 'Cairo-RELEASE'
+        springBootVersion = '2.0.1.RELEASE'
+    }
+    repositories {
+        maven{ url 'http://maven.aliyun.com/nexus/content/groups/public'}
+    }
+    dependencies {
+        classpath ("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+//应用插件
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+//项目设置
+group 'com.abc'
+version '1.0'
+
+//编译设置
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+compileJava.options.encoding = "UTF-8"
+compileTestJava.options.encoding = "UTF-8"
+
+//设置maven阿里云镜像
+repositories {
+    maven{ url 'http://maven.aliyun.com/nexus/content/groups/public'}
+}
+
+//项目依赖
+dependencies {
+    //spring boot的starter
+    compile 'org.springframework.boot:spring-boot-starter-web'
+    compile 'org.springframework.boot:spring-boot-starter-aop'
+    compile 'org.springframework.boot:spring-boot-devtools'
+    testCompile 'org.springframework.boot:spring-boot-starter-test'
+
+    //mysql及druid连接池
+    compile 'mysql:mysql-connector-java'
+    compile 'com.alibaba:druid-spring-boot-starter:1.1.9'
+
+    //mybatis
+//    compile 'org.mybatis.spring.boot:mybatis-spring-boot-starter:1.3.2'
+    compile 'com.baomidou:mybatis-plus-boot-starter:2.2.0'
+
+    //shiro
+    compile 'org.apache.shiro:shiro-spring-boot-web-starter:1.4.0'
+//    compile 'org.crazycake:shiro-redis:2.8.24'
+
+    //其他库
+    compile 'com.alibaba:fastjson:1.2.47'
+
+}
+
+//设置后依赖不用写版本号
+dependencyManagement {
+    imports {
+        mavenBom "io.spring.platform:platform-bom:${springIOVersion}"
+        mavenBom "org.springframework.boot:spring-boot-starter-parent:${springBootVersion}"
+    }
+}
+
+configurations {
+    dev
+}
+
+bootRun {
+    // Use Spring Boot DevTool only when we run Gradle bootRun task
+    classpath = sourceSets.main.runtimeClasspath + configurations.dev
+}
+
+/**
+ * gradle的持续构建和springboot devtools结合，不用修改java代码后自己重启。
+ * 开两个terminal，分别执行以下的命令即可：
+ *
+ *     1. gradle build --continuous
+ *     2. gradle bootRun
+ *
+ * 参考：
+ *
+ *     https://dzone.com/articles/continuous-auto-restart-with-spring-boot-devtools
+ *
+ */
+
+
+
+
+

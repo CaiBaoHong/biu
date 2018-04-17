@@ -1,0 +1,7 @@
+mybatis-plus:
+  mapper-locations: classpath:/mapper/*Mapper.xml
+  typeAliasesPackage: com.abc.entity
+  global-config:
+    id-type: 2 # 分布式全局唯一ID
+  configuration:
+    map-underscore-to-camel-case: true

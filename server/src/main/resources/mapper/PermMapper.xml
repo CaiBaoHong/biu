@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.abc.dao.PermMapper">
+
+    <select id="getPermsByUserId" resultType="java.lang.String">
+        SELECT p.pval FROM perm p, role_perm rp, user_role ur
+        WHERE p.pid = rp.perm_id AND ur.role_id = rp.role_id
+        AND ur.user_id = #{userId}
+    </select>
+
+</mapper>

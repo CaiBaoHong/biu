@@ -1,0 +1,7 @@
+db: biu
+spring:
+  datasource:
+    druid:
+      url: jdbc:mysql://191.8.2.203:3306/${db}?characterEncoding=UTF-8&useSSL=false
+      username: root
+      password: admin

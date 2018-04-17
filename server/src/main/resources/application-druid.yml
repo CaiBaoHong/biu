@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    druid:
+      initialSize: 5
+      minIdle: 5
+      maxWait: 60000
+      maxActive: 20
+      timeBetweenEvictionRunsMillis: 60000
+      minEvictableIdleTimeMillis: 300000
+      validationQuery: SELECT 1
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      poolPreparedStatements: true
+      maxPoolPreparedStatementPerConnectionSize: 20
