@@ -1,11 +1,11 @@
 package com.abc.shiro;
 
 
+import com.abc.entity.User;
+import com.abc.service.PermService;
+import com.abc.service.RoleService;
+import com.abc.service.UserService;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import com.gdiot.device.entity.TAdmin;
-import com.gdiot.device.service.AdminService;
-import com.gdiot.device.service.PermissionService;
-import com.gdiot.device.service.RoleService;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.authz.AuthorizationException;
@@ -23,11 +23,11 @@ import java.util.Set;
 public class BiuRealm extends AuthorizingRealm {
 
     @Autowired
-    private AdminService adminService;
+    private UserService userService;
     @Autowired
     private RoleService roleService;
     @Autowired
-    private PermissionService permissionService;
+    private PermService permService;
 
     {
         //设置用于匹配密码的CredentialsMatcher
@@ -48,8 +48,8 @@ public class BiuRealm extends AuthorizingRealm {
 
         Long adminId = (Long) getAvailablePrincipal(principals);
 
-        Set<String> roleNames = roleService.getRolesByAdminId(adminId);
-        Set<String> permissions = permissionService.getPermissionRulesByAdminId(adminId);
+        Set<String> roleNames = roleService.getRolesByUserId(adminId);
+        Set<String> permissions = permService.getPermsByUserId(adminId);
 
         SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
         info.setRoles(roleNames);
@@ -68,18 +68,22 @@ public class BiuRealm extends AuthorizingRealm {
             throw new AccountException("Null usernames are not allowed by this realm.");
         }
 
-        TAdmin adminDB = adminService.selectOne(new EntityWrapper<TAdmin>().eq("aname",username));
-        if (adminDB == null) {
+        User userDB = userService.selectOne(new EntityWrapper<User>().eq("uname", username));
+        if (userDB == null) {
             throw new UnknownAccountException("No account found for admin [" + username + "]");
         }
 
-        SimpleAuthenticationInfo info = new SimpleAuthenticationInfo(adminDB.getAid(), adminDB.getPwd(), getName());
-        if (adminDB.getPwdSalt() != null) {
-            info.setCredentialsSalt(ByteSource.Util.bytes(adminDB.getPwdSalt()));
+        SimpleAuthenticationInfo info = new SimpleAuthenticationInfo(userDB, userDB.getPwd(), getName());
+        if (userDB.getSalt() != null) {
+            info.setCredentialsSalt(ByteSource.Util.bytes(userDB.getSalt()));
         }
 
         return info;
 
     }
+
+
+
+
 
 }
