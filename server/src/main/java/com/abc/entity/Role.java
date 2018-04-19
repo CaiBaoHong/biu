@@ -24,7 +24,7 @@ public class Role extends Model<Role> {
 
     @Override
     protected Serializable pkVal() {
-        return null;
+        return rid;
     }
 
     public Long getRid() {

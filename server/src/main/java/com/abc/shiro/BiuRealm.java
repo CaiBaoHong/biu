@@ -15,12 +15,18 @@ import org.apache.shiro.crypto.hash.Sha256Hash;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Set;
 
-
+/**
+ * 这个类是参照JDBCRealm写的，主要是自定义了如何查询用户信息，如何查询用户的角色和权限，如何校验密码等逻辑
+ */
 public class BiuRealm extends AuthorizingRealm {
+
+    private static final Logger log =LoggerFactory.getLogger(BiuRealm.class);
 
     @Autowired
     private UserService userService;
@@ -46,14 +52,14 @@ public class BiuRealm extends AuthorizingRealm {
             throw new AuthorizationException("PrincipalCollection method argument cannot be null.");
         }
 
-        Long adminId = (Long) getAvailablePrincipal(principals);
-
-        Set<String> roleNames = roleService.getRolesByUserId(adminId);
-        Set<String> permissions = permService.getPermsByUserId(adminId);
+        User user = (User) getAvailablePrincipal(principals);
+        Set<String> roles = user.getRoles();
+        Set<String> perms = user.getPerms();
+        log.info("获取角色权限信息: roles: {}, perms: {}",roles,perms);
 
         SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
-        info.setRoles(roleNames);
-        info.setStringPermissions(permissions);
+        info.setRoles(roles);
+        info.setStringPermissions(perms);
         return info;
     }
 
@@ -63,15 +69,21 @@ public class BiuRealm extends AuthorizingRealm {
         UsernamePasswordToken upToken = (UsernamePasswordToken) token;
         String username = upToken.getUsername();
 
-        // Null username is invalid
         if (username == null) {
-            throw new AccountException("Null usernames are not allowed by this realm.");
+            throw new AccountException("用户名不能为空");
         }
 
         User userDB = userService.selectOne(new EntityWrapper<User>().eq("uname", username));
         if (userDB == null) {
-            throw new UnknownAccountException("No account found for admin [" + username + "]");
+            throw new UnknownAccountException("找不到用户（"+username+"）的帐号信息");
         }
+
+        //查询用户的角色和权限存到SimpleAuthenticationInfo中，这样在其它地方
+        //SecurityUtils.getSubject().getPrincipal()就能拿出用户的所有信息，包括角色和权限
+        Set<String> roles = roleService.getRolesByUserId(userDB.getUid());
+        Set<String> perms = permService.getPermsByUserId(userDB.getUid());
+        userDB.getRoles().addAll(roles);
+        userDB.getPerms().addAll(perms);
 
         SimpleAuthenticationInfo info = new SimpleAuthenticationInfo(userDB, userDB.getPwd(), getName());
         if (userDB.getSalt() != null) {

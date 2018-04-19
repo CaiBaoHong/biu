@@ -29,7 +29,7 @@ public class Perm extends Model<Perm> {
 
     @Override
     protected Serializable pkVal() {
-        return null;
+        return pid;
     }
 
     public static int getPtypeMenu() {
