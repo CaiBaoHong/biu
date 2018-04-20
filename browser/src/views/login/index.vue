@@ -23,6 +23,7 @@
       </el-form-item>
 
       <el-button type="primary" style="width:100%;margin-bottom:30px;" :loading="loading" @click.native.prevent="handleLogin">{{$t('login.logIn')}}</el-button>
+      <el-button type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleTest">auth.info</el-button>
 
       <div class="tips">
         <span>{{$t('login.username')}} : admin</span>
@@ -73,7 +74,7 @@ export default {
     return {
       loginForm: {
         username: 'admin',
-        password: '1111111'
+        password: '123456'
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
@@ -107,6 +108,9 @@ export default {
           return false
         }
       })
+    },
+    handleTest() {
+      this.$store.dispatch('GetUserInfo')
     },
     afterQRScan() {
       // const hash = window.location.hash.slice(1)

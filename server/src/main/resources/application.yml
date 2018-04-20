@@ -3,6 +3,9 @@ server:
   port: 8888
   servlet:
     context-path: /api/v1
+    session:
+      cookie:
+        name: BIUSID
 spring:
   profiles:
     active: dev
@@ -16,6 +19,6 @@ spring:
     username: root
     password: root
 logging:
+  path: ./logs
   level:
     com.abc.dao: debug
-  path: ./logs

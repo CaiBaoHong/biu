@@ -1,6 +1,6 @@
 shiro:
-  loginUrl: /page/401
-  unauthorizedUrl: /page/403
-  successUrl: /page/index
+  loginUrl: /api/v1/page/401
+  unauthorizedUrl: /api/v1/page/403
+  successUrl: /api/v1/page/index
   userNativeSessionManager: true
 

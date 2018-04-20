@@ -44,14 +44,15 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedMethods("*")
                 .allowedHeaders("*")
                 .allowCredentials(true)
+                .maxAge(3600)
                 .exposedHeaders(
                         "set-cookie",
+                        "Access-Control-Allow-Credentials",
                         "access-control-allow-headers",
                         "access-control-allow-methods",
                         "access-control-allow-origin",
                         "access-control-max-age",
-                        "X-Frame-Options")
-                .allowCredentials(true).maxAge(3600);
+                        "X-Frame-Options");
     }
 
 }
