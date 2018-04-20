@@ -1,5 +1,6 @@
 import { loginByUsername, logout, getUserInfo } from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
+import avatorImg from '@/assets/avator.jpg'
 
 const user = {
   state: {
@@ -8,7 +9,7 @@ const user = {
     code: '',
     token: getToken(),
     name: '',
-    avatar: '',
+    avatar: avatorImg,
     introduction: '',
     roles: [],
     setting: {
@@ -49,9 +50,9 @@ const user = {
       const username = userInfo.username.trim()
       return new Promise((resolve, reject) => {
         loginByUsername(username, userInfo.password).then(response => {
-          const data = response.data
+          const data = response
           commit('SET_TOKEN', data.token)
-          setToken(response.data.token)
+          setToken(data.token)
           resolve()
         }).catch(error => {
           reject(error)
@@ -63,13 +64,13 @@ const user = {
     GetUserInfo({ commit, state }) {
       return new Promise((resolve, reject) => {
         getUserInfo(state.token).then(response => {
-          if (!response.data) { // 由于mockjs 不支持自定义状态码只能这样hack
+          if (!response) { // 由于mockjs 不支持自定义状态码只能这样hack
             reject('error')
           }
           const data = response.data
           commit('SET_ROLES', data.roles)
           commit('SET_NAME', data.name)
-          commit('SET_AVATAR', data.avatar)
+          // commit('SET_AVATAR', data.avatar)
           commit('SET_INTRODUCTION', data.introduction)
           resolve(response)
         }).catch(error => {
@@ -121,7 +122,7 @@ const user = {
         commit('SET_TOKEN', role)
         setToken(role)
         getUserInfo(role).then(response => {
-          const data = response.data
+          const data = response
           commit('SET_ROLES', data.roles)
           commit('SET_NAME', data.name)
           commit('SET_AVATAR', data.avatar)

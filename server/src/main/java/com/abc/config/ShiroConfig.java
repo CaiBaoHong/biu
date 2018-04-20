@@ -37,7 +37,9 @@ public class ShiroConfig {
     public ShiroFilterChainDefinition shiroFilterChainDefinition() {
         DefaultShiroFilterChainDefinition chain = new DefaultShiroFilterChainDefinition();
         //哪些请求可以匿名访问
-        chain.addPathDefinition("/user/login", "anon");
+        chain.addPathDefinition("/auth/login", "anon");
+        chain.addPathDefinition("/auth/logout", "anon");
+        chain.addPathDefinition("/auth/info", "anon");
         chain.addPathDefinition("/page/401", "anon");
         chain.addPathDefinition("/page/403", "anon");
         chain.addPathDefinition("/page/index", "anon");

@@ -36,7 +36,7 @@ public class WebConfig implements WebMvcConfigurer {
         converters.add(converter);
     }
 
-    /*
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
@@ -53,5 +53,5 @@ public class WebConfig implements WebMvcConfigurer {
                         "X-Frame-Options")
                 .allowCredentials(true).maxAge(3600);
     }
-    */
+
 }

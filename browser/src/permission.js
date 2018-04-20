@@ -18,7 +18,14 @@ const whiteList = ['/login', '/authredirect']// no redirect whitelist
 
 router.beforeEach((to, from, next) => {
   NProgress.start() // start progress bar
-  if (getToken()) { // determine if there has token
+
+  let token = getToken();
+  let hasToken = token != undefined && token !=null && token != ''
+
+  console.log(hasToken)
+
+  if (hasToken) { // determine if there has token
+
     /* has token*/
     if (to.path === '/login') {
       next({ path: '/' })
@@ -48,6 +55,7 @@ router.beforeEach((to, from, next) => {
       }
     }
   } else {
+
     /* has no token*/
     if (whiteList.indexOf(to.path) !== -1) { // 在免登录白名单，直接进入
       next()

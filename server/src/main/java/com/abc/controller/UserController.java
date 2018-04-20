@@ -99,69 +99,7 @@ public class UserController {
         return Json.result(oper, addSucc);
     }
 
-    /**
-     * 登录接口，由于UserService中是模拟返回用户信息的，
-     * 所以用户名随意，密码123456
-     *
-     * @param body
-     * @return
-     */
-    @PostMapping("/login")
-    public Json login(@RequestBody String body){
 
-        String oper = "user login";
-        log.info("{}, body: {}",oper,body);
-
-        JSONObject json = JSON.parseObject(body);
-        String uname = json.getString("uname");
-        String pwd = json.getString("pwd");
-
-        if (StringUtils.isEmpty(uname)){
-            return Json.fail(oper,"用户名不能为空");
-        }
-        if (StringUtils.isEmpty(pwd)){
-            return Json.fail(oper,"密码不能为空");
-        }
-
-        Subject currentUser = SecurityUtils.getSubject();
-        try {
-            //登录
-            currentUser.login( new UsernamePasswordToken(uname, pwd) );
-            //从session取出用户信息
-            User user = (User) currentUser.getPrincipal();
-            if (user==null) throw new AuthenticationException();
-            //返回登录用户的信息给前台，含用户的所有角色和权限
-            return Json.succ(oper)
-                    .data("uid",user.getUid())
-                    .data("nick",user.getNick())
-                    .data("roles",user.getRoles())
-                    .data("perms",user.getPerms());
-
-        } catch ( UnknownAccountException uae ) {
-            log.warn("用户帐号不正确");
-            return Json.fail(oper,"用户帐号或密码不正确");
-
-        } catch ( IncorrectCredentialsException ice ) {
-            log.warn("用户密码不正确");
-            return Json.fail(oper,"用户帐号或密码不正确");
-
-        } catch ( LockedAccountException lae ) {
-            log.warn("用户帐号被锁定");
-            return Json.fail(oper,"用户帐号被锁定不可用");
-
-        } catch ( AuthenticationException ae ) {
-            log.warn("登录出错");
-            return Json.fail(oper,"登录失败："+ae.getMessage());
-        }
-    }
-
-    @PostMapping("/logout")
-    public Json logout(){
-        String oper = "user logout";
-        log.info("{}",oper);
-        SecurityUtils.getSubject().logout();
-        return new Json(oper);
-    }
 
 
 }
