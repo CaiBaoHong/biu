@@ -1,6 +1,7 @@
 <template>
   <div class="dashboard-container">
     <component :is="currentRole"></component>
+    <el-button type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleTest">auth.info</el-button>
   </div>
 </template>
 
@@ -26,6 +27,11 @@ export default {
     if (!this.roles.includes('admin')) {
       this.currentRole = 'editorDashboard'
     }
+  },
+  methods:{
+    handleTest() {
+      this.$store.dispatch('GetUserInfo')
+    },
   }
 }
 </script>

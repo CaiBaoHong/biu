@@ -98,9 +98,11 @@ export default {
         if (valid) {
           this.loading = true
           this.$store.dispatch('LoginByUsername', this.loginForm).then(() => {
+            console.log('login success...')
             this.loading = false
             this.$router.push({ path: '/' })
           }).catch(() => {
+            console.log('login fail...')
             this.loading = false
           })
         } else {

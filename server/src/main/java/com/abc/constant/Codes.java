@@ -14,6 +14,9 @@ public interface Codes {
     /** 未授权，拒绝访问 */
     int UNAUTHZ = 4403;
 
+    /** session超时退出登录 */
+    int SESSION_TIMEOUT = 4433;
+
     /** shiro相关的错误 */
     int SHIRO_ERR = 4444;
 

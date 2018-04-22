@@ -1,5 +1,6 @@
 package com.abc.controller;
 
+import com.abc.constant.Codes;
 import com.abc.entity.User;
 import com.abc.vo.Json;
 import com.alibaba.fastjson.JSON;
@@ -105,13 +106,8 @@ public class AuthController {
         //从session取出用户信息
         User user = (User) subject.getPrincipal();
         if (user==null){
-            //返回登录用户的信息给前台，含用户的所有角色和权限
-            return Json.succ(oper)
-                    .data("name",null)
-                    .data("nick",null)
-                    .data("avator","")
-                    .data("roles", null)
-                    .data("perms",null);
+            //告知前台，登录失效
+            return new Json(oper,false, Codes.SESSION_TIMEOUT,"登录已失效",null);
         }else{
             //返回登录用户的信息给前台，含用户的所有角色和权限
             return Json.succ(oper)

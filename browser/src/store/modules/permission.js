@@ -9,7 +9,6 @@ function hasPermission(roles, route) {
   if (route.meta && route.meta.roles) {
     let hasSome =  roles.some(role => {
       let result = route.meta.roles.indexOf(role) >= 0
-      console.log("roles: "+route.meta.roles+" role: "+role+" result: "+result)
       return result
     })
 

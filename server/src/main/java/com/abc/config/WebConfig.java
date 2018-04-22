@@ -47,7 +47,6 @@ public class WebConfig implements WebMvcConfigurer {
                 .maxAge(3600)
                 .exposedHeaders(
                         "set-cookie",
-                        "Access-Control-Allow-Credentials",
                         "access-control-allow-headers",
                         "access-control-allow-methods",
                         "access-control-allow-origin",
