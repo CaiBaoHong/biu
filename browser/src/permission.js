@@ -7,11 +7,23 @@ import { getToken } from '@/utils/auth' // getToken from cookie
 
 NProgress.configure({ showSpinner: false })// NProgress Configuration
 
-// permissiom judge function
-function hasPermission(roles, permissionRoles) {
-  if (roles.indexOf('admin') >= 0) return true // admin permission passed directly
-  if (!permissionRoles) return true
-  return roles.some(role => permissionRoles.indexOf(role) >= 0)
+/**
+ * 匹配权限
+ * @param userPerms 用户拥有的权限集合，后台返回来，存在vuex，数据类型是Set
+ * @param routerPerm 定义的src/router/index.js的路由表asyncRouterMap中
+ * @returns {*}
+ */
+function hasPermission(userPerms, routerPerm) {
+  //特殊值，*代表所有资源权限
+  if(userPerms.has('*')){
+    return true;
+  }
+  //如果菜单路由上没有声明perm属性，默认显示该菜单，代表所有人可以访问
+  if(!routerPerm){
+    return true;
+  }
+  //判断用户的资源权限集合中是否包含该菜单路由声明的资源权限
+  return userPerms.has(routerPerm);
 }
 
 const loginRoute = "/login"
@@ -41,6 +53,42 @@ router.beforeEach((to, from, next) => {
     return;
   }
 
+  // 3. 点击左侧菜单时会触发页面路由变化，下面判断是否有权限跳转页面
+  // 3.1 如果vuex中有权限信息，判断
+  if(store.getters.perms.size > 0){
+    if (hasPermission(store.getters.perms, to.meta.perm)) {
+      next()
+    } else {
+      next({ path: '/401', replace: true, query: { noGoBack: true }})
+    }
+    return;
+  }
+
+  // 3.2 如果vuex中没有权限信息，就查询后台
+  store.dispatch('GetUserInfo').then(res => {
+    // 如果后台session超时退出登录了，会被src/utils/request.js拦截，会弹出提示用户重新登录
+    // 所以这里肯定是通过拦截后返回来的
+    const perms = res.data.perms // perms: ['menu:1','menu:2']
+
+    if(perms==null || perms==undefined || perms=='undefined' || perms==''){
+      Message.error('找不到登录用户的菜单权限信息')
+      NProgress.done();
+    }
+
+    // 根据后台返回的资源权限动态生成路由表
+    store.dispatch('GenerateRoutes', { perms }).then(() => {
+      router.addRoutes(store.getters.addRouters) // 动态添加可访问路由表
+      next({ ...to, replace: true }) // hack方法 确保addRoutes已完成 ,set the replace: true so the navigation will not leave a history record
+    })
+  }).catch(() => {
+    store.dispatch('FedLogOut').then(() => {
+      Message.error('查询登录用户的信息失败，请重试')
+      next({ path: '/login' })
+    })
+  })
+
+
+  /*
   if (store.getters.roles.length == 0) { // 判断当前用户是否已拉取完user_info信息
     store.dispatch('GetUserInfo').then(res => { // 拉取user_info
 
@@ -75,6 +123,7 @@ router.beforeEach((to, from, next) => {
     }
     // 可删 ↑
   }
+  */
 
 
 

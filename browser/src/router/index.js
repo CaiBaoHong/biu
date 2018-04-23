@@ -21,7 +21,8 @@ import Layout from '../views/layout/Layout'
 * redirect: noredirect           if `redirect:noredirect` will no redirct in the breadcrumb
 * name:'router-name'             the name is used by <keep-alive> (must set!!!)
 * meta : {
-    roles: ['admin','editor']     will control the page roles (you can set multiple roles)
+    roles: ['admin','editor']    will control the page roles (you can set multiple roles)
+    perm: 'device:add'          基于资源控制菜单权限，写默认会显示出来，如果有值，会判断是否跟后台返回的资源权限匹配
     title: 'title'               the name show in submenu and breadcrumb (recommend set)
     icon: 'svg-name'             the icon show in the sidebar,
     noCache: true                if true ,the page will no be cached(default is false)
@@ -63,6 +64,45 @@ export default new Router({
 })
 
 export const asyncRouterMap = [
+
+
+  {
+    path: '/menu1',
+    redirect: '/menu1/index',
+    component: Layout,
+    children: [{
+      path: 'index',
+      name: 'menu1',
+      component: _import('menu1/index'),
+      meta: { title: 'menu1', icon: 'lock', perm: 'menu:1' }
+    }]
+  },
+  {
+    path: '/menu2',
+    redirect: '/menu2/index',
+    component: Layout,
+    meta: { perm: 'menu:2' },
+    children: [{
+      path: 'index',
+      name: 'menu2',
+      component: _import('menu2/index'),
+      meta: { title: 'menu2', icon: 'lock', perm: 'menu:2' }
+    }]
+  },
+  {
+    path: '/menu3',
+    redirect: '/menu3/index',
+    component: Layout,
+    meta: { perm: 'menu:3' },
+    children: [{
+      path: 'index',
+      name: 'menu3',
+      component: _import('menu3/index'),
+      meta: { title: 'menu3', icon: 'lock', perm: 'menu:3' }
+    }]
+  },
+
+
   {
     path: '/permission',
     component: Layout,

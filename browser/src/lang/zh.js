@@ -1,5 +1,9 @@
 export default {
   route: {
+    menu1: '菜单1',
+    menu2: '菜单2',
+    menu3: '菜单3',
+
     dashboard: '首页',
     introduction: '简述',
     documentation: '文档',

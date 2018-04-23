@@ -6,7 +6,7 @@ server:
     session:
       cookie:
         name: BIUSID
-        max-age: 10s
+        max-age: 30s
 
 spring:
   profiles:

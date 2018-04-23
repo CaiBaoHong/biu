@@ -12,6 +12,7 @@ const user = {
     avatar: avatorImg,
     introduction: '',
     roles: [],
+    perms: new Set(),
     setting: {
       articlePlatform: []
     }
@@ -41,6 +42,9 @@ const user = {
     },
     SET_ROLES: (state, roles) => {
       state.roles = roles
+    },
+    SET_PERMS: (state, perms) => {
+      state.perms = new Set(perms)
     }
   },
 
@@ -68,6 +72,7 @@ const user = {
             reject('error')
           }
           commit('SET_ROLES', res.data.roles)
+          commit('SET_PERMS', res.data.perms)
           commit('SET_NAME', res.data.name)
           // commit('SET_AVATAR', data.avatar)
           //commit('SET_INTRODUCTION', res.data.introduction)
@@ -97,6 +102,7 @@ const user = {
       return new Promise((resolve, reject) => {
         logout(state.token).then(() => {
           commit('SET_TOKEN', '')
+          commit('SET_ROLES', [])
           commit('SET_ROLES', [])
           removeToken()
           resolve()
