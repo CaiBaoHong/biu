@@ -1,7 +1,7 @@
 shiro:
-  loginUrl: /page/401
-  unauthorizedUrl: /page/403
-  successUrl: /page/index
+  loginUrl: /auth/page/401
+  unauthorizedUrl: /auth/page/403
+  successUrl: /auth/page/index
 
 
 

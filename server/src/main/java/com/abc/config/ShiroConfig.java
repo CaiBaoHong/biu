@@ -5,6 +5,7 @@ import org.apache.shiro.realm.Realm;
 import org.apache.shiro.spring.web.config.DefaultShiroFilterChainDefinition;
 import org.apache.shiro.spring.web.config.ShiroFilterChainDefinition;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -39,7 +40,6 @@ public class ShiroConfig {
         //哪些请求可以匿名访问
         chain.addPathDefinition("/auth/login", "anon");
         chain.addPathDefinition("/auth/logout", "anon");
-        chain.addPathDefinition("/auth/info", "anon");
         chain.addPathDefinition("/page/401", "anon");
         chain.addPathDefinition("/page/403", "anon");
         chain.addPathDefinition("/page/index", "anon");
@@ -48,5 +48,8 @@ public class ShiroConfig {
         chain.addPathDefinition("/**", "authc");
         return chain;
     }
+
+
+
 
 }

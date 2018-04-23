@@ -27,3 +27,9 @@ export function getUserInfo(token) {
   })
 }
 
+export function testUserInfo() {
+  return request({
+    url: '/user/info',
+    method: 'get'
+  })
+}

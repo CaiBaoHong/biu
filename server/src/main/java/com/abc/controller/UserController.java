@@ -1,5 +1,6 @@
 package com.abc.controller;
 
+import com.abc.constant.Codes;
 import com.abc.entity.User;
 import com.abc.entity.UserRole;
 import com.abc.service.UserRoleService;
@@ -97,6 +98,13 @@ public class UserController {
 
         boolean addSucc = userRoleService.insertBatch(list);
         return Json.result(oper, addSucc);
+    }
+
+    @GetMapping("/info")
+    public Json userInfo(){
+        System.out.println("get user info...");
+        Object userInfo = SecurityUtils.getSubject().getPrincipal();
+        return Json.succ("get user info","userInfo",userInfo);
     }
 
 
