@@ -7,6 +7,6 @@ import java.util.Set;
 
 public interface PermService extends IService<Perm> {
 
-    Set<String> getPermsByUserId(Long userId);
+    Set<String> getPermsByUserId(String userId);
 
 }

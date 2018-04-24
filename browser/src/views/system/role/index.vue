@@ -10,6 +10,9 @@
   export default {
     name: 'RoleManage',
     data() {
+      return {
+
+      }
     },
   }
 </script>

@@ -19,8 +19,8 @@ public class Perm extends Model<Perm> {
     /** 权限类型：按钮 */
     public static int PTYPE_BUTTON = 2;
 
-    @TableId(type = IdType.ID_WORKER)
-    private Long pid;       // 权限id
+    @TableId(type = IdType.ID_WORKER_STR)
+    private String pid;       // 权限id
     private String pname;   // 权限名称
     private Integer ptype;  // 权限类型：1.菜单；2.按钮
     private String pval;    // 权限值，shiro的权限控制表达式
@@ -48,11 +48,11 @@ public class Perm extends Model<Perm> {
         PTYPE_BUTTON = ptypeButton;
     }
 
-    public Long getPid() {
+    public String getPid() {
         return pid;
     }
 
-    public void setPid(Long pid) {
+    public void setPid(String pid) {
         this.pid = pid;
     }
 

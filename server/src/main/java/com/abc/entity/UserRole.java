@@ -11,30 +11,30 @@ import java.io.Serializable;
  */
 public class UserRole implements Serializable {
 
-    private Long userId;
-    private Long roleId;
+    private String userId;
+    private String roleId;
 
     public UserRole() {
     }
 
-    public UserRole(Long userId, Long roleId) {
+    public UserRole(String userId, String roleId) {
         this.userId = userId;
         this.roleId = roleId;
     }
 
-    public Long getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 
-    public Long getRoleId() {
+    public String getRoleId() {
         return roleId;
     }
 
-    public void setRoleId(Long roleId) {
+    public void setRoleId(String roleId) {
         this.roleId = roleId;
     }
 }

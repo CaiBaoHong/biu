@@ -14,8 +14,8 @@ import java.util.Date;
 @TableName("role")
 public class Role extends Model<Role> {
 
-    @TableId(type = IdType.ID_WORKER)
-    private Long rid;       // 角色id
+    @TableId(type = IdType.ID_WORKER_STR)
+    private String rid;       // 角色id
     private String rname;   // 角色名，用于显示
     private String rdesc;   // 角色描述
     private String rval;    // 角色值，用于权限判断
@@ -27,11 +27,11 @@ public class Role extends Model<Role> {
         return rid;
     }
 
-    public Long getRid() {
+    public String getRid() {
         return rid;
     }
 
-    public void setRid(Long rid) {
+    public void setRid(String rid) {
         this.rid = rid;
     }
 

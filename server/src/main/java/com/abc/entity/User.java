@@ -17,8 +17,8 @@ import java.util.Set;
 @TableName("user")
 public class User extends Model<User> {
 
-    @TableId(type = IdType.ID_WORKER)
-    private Long uid;       // 用户id
+    @TableId(type = IdType.ID_WORKER_STR)
+    private String uid;       // 用户id
     private String uname;   // 登录名，不可改
     private String nick;    // 用户昵称，可改
     private String pwd;     // 已加密的登录密码
@@ -37,11 +37,11 @@ public class User extends Model<User> {
         return uid;
     }
 
-    public Long getUid() {
+    public String getUid() {
         return uid;
     }
 
-    public void setUid(Long uid) {
+    public void setUid(String uid) {
         this.uid = uid;
     }
 

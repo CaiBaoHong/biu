@@ -2,15 +2,14 @@
   <div class="app-container">
 
     <el-row>
-      <span style="margin-left: 20px;">昵称：</span>
-      <el-input style="width:200px;" v-model="tableQuery.nick" placeholder="请输入内容"></el-input>
+      <el-input style="width:200px;" v-model="tableQuery.nick" placeholder="昵称"></el-input>
       <span style="margin-right: 15px;"></span>
       <el-button icon="el-icon-search" circle @click="fetchData()"></el-button>
     </el-row>
 
     <div style="margin-bottom: 30px;"></div>
 
-    <el-button type="primary" icon="el-icon-plus" size="mini" @click="handleCreate">{{textMap.update}}</el-button>
+    <el-button type="primary" icon="el-icon-plus" size="mini" @click="handleCreate">{{textMap.create}}</el-button>
 
     <div style="margin-bottom: 30px;"></div>
 
@@ -90,14 +89,17 @@
   import { queryUser,updateUser,addUser } from '@/api/user'
   import { parseTime} from '@/utils'
   import { pageParamNames } from '@/utils/constants'
+  import debounce from 'lodash/debounce'
 
   export default {
     name: 'UserManage',
     data() {
 
       var validateName = (rule, value, callback) => {
-        if (dialogStatus=='create' && value === '') {
+        if (this.dialogStatus=='create' && value === '') {
           callback(new Error('必填'));
+        }else{
+          callback();
         }
       };
 
@@ -105,10 +107,7 @@
         if (value === '') {
           callback(new Error('请输入密码'));
         } else {
-          console.log(1)
           if (this.temp.pwd2 !== '') {
-            console.log(2)
-            console.log(this.$refs.dataForm)
             this.$refs.dataForm.validateField('pwd2');
           }
           callback();
@@ -164,6 +163,14 @@
     created(){
       this.fetchData()
     },
+    watch:{
+      //延时查询
+      'tableQuery.nick': debounce( function(){
+        this.fetchData()
+      },500)
+
+    },//watch
+
     methods: {
 
       //分页
@@ -204,9 +211,11 @@
           if (valid) {
             const tempData = Object.assign({}, this.temp)//copy obj
             console.log("update Data: %o",tempData)
-            updateUser(tempData).then(() => {
+            updateUser(tempData).then(res => {
+
+              this.temp.updated = res.data.updated
               for (const v of this.tableData) {
-                if (v.id === this.temp.id) {
+                if (v.uid === this.temp.uid) {
                   const index = this.tableData.indexOf(v)
                   this.tableData.splice(index, 1, this.temp)
                   break
@@ -234,11 +243,13 @@
         })
       },
       createData() {
+        console.log("createDate...")
         this.$refs['dataForm'].validate((valid) => {
+          console.log("valid: "+valid)
           if (valid) {
-            addUser(this.temp).then((resp) => {
-              this.temp.uid = resp.uid;//后台传回来新增记录的id
-              this.temp.created = resp.created;//后台传回来新增记录的时间
+            addUser(this.temp).then((res) => {
+              this.temp.uid = res.data.uid;//后台传回来新增记录的id
+              this.temp.created = res.data.created;//后台传回来新增记录的时间
               this.tableData.unshift(this.temp)
               this.dialogFormVisible = false
               this.$notify({

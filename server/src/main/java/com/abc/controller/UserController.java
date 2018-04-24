@@ -12,6 +12,7 @@ import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.baomidou.mybatisplus.plugins.Page;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.crypto.RandomNumberGenerator;
@@ -51,6 +52,8 @@ public class UserController {
     public Json add(@RequestBody String body) {
 
         String oper = "add user";
+        log.info("{}, body: {}",oper,body);
+
         User user = JSON.parseObject(body, User.class);
 
         if (StringUtils.isEmpty(user.getUname())) {
@@ -92,10 +95,10 @@ public class UserController {
 
         String oper = "update user's roles";
         JSONObject json = JSON.parseObject(body);
-        final Long uid = json.getLong("uid");
+        final String uid = json.getString("uid");
 
         JSONArray rids = json.getJSONArray("rids");
-        List<UserRole> list = rids.stream().map(roleId -> new UserRole(uid, (Long) roleId)).collect(Collectors.toList());
+        List<UserRole> list = rids.stream().map(roleId -> new UserRole(uid, (String) roleId)).collect(Collectors.toList());
 
         boolean deleteSucc = userRoleService.delete(new EntityWrapper<UserRole>().eq("user_id", uid));
         if (!deleteSucc) return Json.fail(oper, "无法解除原来的用户-角色关系");
@@ -134,6 +137,7 @@ public class UserController {
             queryParams.like("nick", nick);
         }
         Page<User> page = userService.selectPage(new Page<>(current, size), queryParams);
+        page.getRecords().stream().forEach(user -> System.out.println(ReflectionToStringBuilder.toString(user)));
         return Json.succ(oper).data("page", page);
     }
 
@@ -167,9 +171,10 @@ public class UserController {
         user.setCreated(null);
         user.setUpdated(new Date());
 
-        boolean success = userService.update(user,new EntityWrapper<User>().eq("uid",user.getUid()));
+        //boolean success = userService.update(user,new EntityWrapper<User>().eq("uid",user.getUid()));
+        boolean success = userService.updateById(user);
 
-        return Json.result(oper, success);
+        return Json.result(oper, success).data("updated",user.getUpdated());
     }
 
 

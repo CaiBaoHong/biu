@@ -7,6 +7,6 @@ import java.util.Set;
 
 public interface RoleService extends IService<Role> {
 
-    Set<String> getRolesByUserId(Long userId);
+    Set<String> getRolesByUserId(String userId);
 
 }

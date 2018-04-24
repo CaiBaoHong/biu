@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements RoleService {
 
     @Override
-    public Set<String> getRolesByUserId(Long userId) {
+    public Set<String> getRolesByUserId(String userId) {
         List<String> list = baseMapper.getRolesByUserId(userId);
         return list.stream().collect(Collectors.toSet());
     }

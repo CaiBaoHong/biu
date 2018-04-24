@@ -12,31 +12,31 @@ import java.io.Serializable;
 public class RolePerm implements Serializable {
 
     @TableField("role_id")
-    private Long roleId;
+    private String roleId;
     @TableField("perm_id")
-    private Long permId;
+    private String permId;
 
     public RolePerm() {
     }
 
-    public RolePerm(Long roleId, Long permId) {
+    public RolePerm(String roleId, String permId) {
         this.roleId = roleId;
         this.permId = permId;
     }
 
-    public Long getRoleId() {
+    public String getRoleId() {
         return roleId;
     }
 
-    public void setRoleId(Long roleId) {
+    public void setRoleId(String roleId) {
         this.roleId = roleId;
     }
 
-    public Long getPermId() {
+    public String getPermId() {
         return permId;
     }
 
-    public void setPermId(Long permId) {
+    public void setPermId(String permId) {
         this.permId = permId;
     }
 }

@@ -71,10 +71,10 @@ public class RoleController {
 
         String oper = "update role's permissions";
         JSONObject json = JSON.parseObject(body);
-        final Long rid = json.getLong("rid");
+        final String rid = json.getString("rid");
 
         JSONArray pids = json.getJSONArray("pids");
-        List<RolePerm> list = pids.stream().map(permId -> new RolePerm(rid, (Long) permId)).collect(Collectors.toList());
+        List<RolePerm> list = pids.stream().map(permId -> new RolePerm(rid, (String)permId)).collect(Collectors.toList());
 
         boolean deleteSucc = rolePermService.delete(new EntityWrapper<RolePerm>().eq("role_id", rid));
         if (!deleteSucc) return Json.fail(oper,"无法解除原来的角色-权限关系");

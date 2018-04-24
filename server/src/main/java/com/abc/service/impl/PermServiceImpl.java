@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class PermServiceImpl extends ServiceImpl<PermMapper, Perm> implements PermService {
 
     @Override
-    public Set<String> getPermsByUserId(Long userId) {
+    public Set<String> getPermsByUserId(String userId) {
         List<String> list = baseMapper.getPermsByUserId(userId);
         return list.stream().collect(Collectors.toSet());
     }
