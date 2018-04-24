@@ -70,11 +70,12 @@ export const asyncRouterMap = [
     path: '/menu1',
     redirect: '/menu1/index',
     component: Layout,
+    meta: { perm: 'menu:1' },
     children: [{
       path: 'index',
       name: 'menu1',
       component: _import('menu1/index'),
-      meta: { title: 'menu1', icon: 'lock', perm: 'menu:1' }
+      meta: { title: 'menu1', icon: 'lock' }
     }]
   },
   {
@@ -86,7 +87,7 @@ export const asyncRouterMap = [
       path: 'index',
       name: 'menu2',
       component: _import('menu2/index'),
-      meta: { title: 'menu2', icon: 'lock', perm: 'menu:2' }
+      meta: { title: 'menu2', icon: 'lock'}
     }]
   },
   {
@@ -98,7 +99,7 @@ export const asyncRouterMap = [
       path: 'index',
       name: 'menu3',
       component: _import('menu3/index'),
-      meta: { title: 'menu3', icon: 'lock', perm: 'menu:3' }
+      meta: { title: 'menu3', icon: 'lock' }
     }]
   },
 

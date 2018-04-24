@@ -45,6 +45,13 @@ const user = {
     },
     SET_PERMS: (state, perms) => {
       state.perms = new Set(perms)
+    },
+    ADD_PERM: (state, perm) => {
+      state.perms = new Set([...state.perms,perm])
+    },
+    DEL_PERM: (state, perm) => {
+      state.perms.delete(perm)
+      state.perms = new Set([...state.perms])
     }
   },
 
@@ -129,12 +136,27 @@ const user = {
         getUserInfo(role).then(res => {
           commit('SET_ROLES', res.data.roles)
           commit('SET_NAME', res.data.name)
-          commit('SET_AVATAR', res.data.avatar)
+          //commit('SET_AVATAR', res.data.avatar)
           commit('SET_INTRODUCTION', res.data.introduction)
           resolve()
         })
       })
-    }
+    },
+
+    // 动态修改权限
+    addPerm({ commit }, perm) {
+      return new Promise(resolve => {
+        commit('ADD_PERM', perm)
+        resolve()
+      })
+    },
+    deletePerm({ commit }, perm) {
+      return new Promise(resolve => {
+        commit('DEL_PERM', perm)
+        resolve()
+      })
+    },
+
   }
 }
 

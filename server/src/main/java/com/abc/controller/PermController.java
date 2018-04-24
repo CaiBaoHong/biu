@@ -51,7 +51,7 @@ public class PermController {
         //保存新用户数据
         perm.setCreated(new Date());
         boolean success = permService.insert(perm);
-        return Json.result(oper, success);
+        return Json.result(oper, success).data("permId",perm.getPid());
     }
 
 

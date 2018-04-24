@@ -16,8 +16,12 @@ import './icons' // icon
 import './errorLog'// error log
 import './permission' // permission control
 // import './mock' // simulation data
+import perm from '@/directive/perm.js' // use clipboard by v-directive
 
-import * as filters from './filters' // global filters
+import * as filters from './filters'
+
+// 注册一个全局自定义指令 `v-perm`
+Vue.directive('perm', perm)
 
 Vue.use(Element, {
   size: 'medium', // set element-ui default size
