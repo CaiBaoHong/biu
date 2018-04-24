@@ -55,6 +55,7 @@ dependencies {
 
     //其他库
     compile 'com.alibaba:fastjson:1.2.47'
+    compile 'org.apache.commons:commons-lang3'
 
 }
 

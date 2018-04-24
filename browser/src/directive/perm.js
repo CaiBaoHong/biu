@@ -11,7 +11,6 @@ export default {
 }
 
 function displayByPermission(el,binding){
-  console.log("el = "+el+" , binding.value = "+binding.value)
   if(el && binding.value){
     if(store.getters.perms.has(binding.value)){
       el.style.display = 'inline'

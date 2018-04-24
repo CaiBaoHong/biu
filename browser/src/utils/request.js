@@ -37,7 +37,7 @@ service.interceptors.response.use(
 
     // 提示登录
     if(res.data.code == Code.UNAUTHEN
-      || res.data.code == Code.UNAUTHZ
+      //|| res.data.code == Code.UNAUTHZ //没有权限不用管，提示够了，不需要提示用户重新登录
       || res.data.code == Code.SESSION_TIMOUT){
       MessageBox.confirm('你已被登出，可以取消继续留在该页面，或者重新登录', '确定登出', {
         confirmButtonText: '重新登录',

@@ -1,5 +1,16 @@
 export default {
   route: {
+
+    menu1: '菜单1',
+    menu2: '菜单2',
+    menu3: '菜单3',
+
+    system: '系统',
+    user_manage: '用户管理',
+    role_manage: '角色管理',
+    perm_manage: '权限管理',
+
+
     dashboard: 'Dashboard',
     introduction: 'Introduction',
     documentation: 'Documentation',

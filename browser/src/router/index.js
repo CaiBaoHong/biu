@@ -55,6 +55,8 @@ export const constantRouterMap = [
       meta: { title: 'documentation', icon: 'documentation', noCache: true }
     }]
   }
+
+
 ]
 
 export default new Router({
@@ -65,6 +67,17 @@ export default new Router({
 
 export const asyncRouterMap = [
 
+  {
+    path: '/system',
+    component: Layout,
+    redirect: '/system/user',
+    meta: { title: 'system', icon: 'component', perm: 'system:*' },
+    children: [
+      {path: 'user_manage',name: 'user_manage',component: _import('system/user/index'),meta: { title: 'user_manage', icon: 'documentation', perm:'system:user_manage' }},
+      {path: 'role_manage',name: 'role_manage',component: _import('system/role/index'),meta: { title: 'role_manage', icon: 'documentation', perm:'system:role_manage' }},
+      {path: 'perm_manage',name: 'perm_manage',component: _import('system/perm/index'),meta: { title: 'perm_manage', icon: 'documentation', perm:'system:perm_manage' }},
+    ]
+  },
 
   {
     path: '/menu1',
