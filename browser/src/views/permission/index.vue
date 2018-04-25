@@ -85,7 +85,7 @@
     <el-alert
       title="提示："
       type="success">
-      <p>按钮级别的权限实现非常简单，若您要使用，可以可以页面元素上写上自定义指令v-perm="参数"，参数是显示该元素的所需要的权限值。如：
+      <p>按钮级别的权限实现非常简单，若您要使用，可以在页面元素上写上自定义指令v-perm="参数"，参数是显示该元素的所需要的权限值。如：
         &lt;el-button v-perm='"btn:3"'&gt;按钮3&lt;/el-button&gt;。
       </p>
       <p>v-perm指令内部会拿到该参数，与vuex的store.getters.perms中存储的后台返回的权限值匹配。如果有匹配的权限则显示元素。细节请看src/directive/perm.js</p>
