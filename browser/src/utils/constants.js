@@ -18,27 +18,30 @@
 export const pageParamNames = ["current","pages","size","total"]
 
 
-
-
 /**
  * 下拉选择框数据：连接类型
  *
  */
-export const connTypeOptions = [
-  {value: 'HW_COAP',label: 'HW_COAP'},
-  {value: 'TCP',label: 'TCP'},
-  {value: 'UDP',label: 'UDP'}
+export const permTypeOptions = [
+  {value: 0, label: '特殊'},
+  {value: 1, label: '菜单'},
+  {value: 2, label: '按钮'},
+  {value: 3, label: '测试'}
 ]
 
 /**
  * 订阅消息的类型
  * @type {Map<any, any>}
  */
-export const subscriptionType = new Map([
-  ['deviceInfoChanged','设备信息变化'],
-  ['deviceDataChanged','设备数据变化'],
-  ['deviceDeleted','删除设备'],
-  ['deviceEvent','设备事件']
+export const permTypeMap = new Map([
+  [0,'特殊'],
+  [1,'菜单'],
+  [2,'按钮'],
+  [3,'测试']
 ])
 
+export const addSuccNotify = { title: '成功',message: '添加成功',type: 'success',duration: 2000}
+export const deleteSuccNotify = { title: '成功',message: '删除成功',type: 'success',duration: 2000}
+export const updateSuccNotify = { title: '成功',message: '更新成功',type: 'success',duration: 2000}
+export const deleteConfirm = { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning'}
 

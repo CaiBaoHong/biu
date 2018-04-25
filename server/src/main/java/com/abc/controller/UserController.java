@@ -148,7 +148,8 @@ public class UserController {
         if (size == 0) size = 10;
 
         Wrapper<User> queryParams = new EntityWrapper<>();
-        queryParams.orderBy("updated", true);
+        queryParams.orderBy("created", false);
+        queryParams.orderBy("updated", false);
         queryParams.setSqlSelect("uid","uname","nick","created","updated");
         if (StringUtils.isNotBlank(nick)) {
             queryParams.like("nick", nick);

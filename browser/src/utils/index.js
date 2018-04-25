@@ -262,3 +262,14 @@ export function deepClone(source) {
   })
   return targetObj
 }
+
+/**
+ * 清空对象所有属性
+ * @param temp
+ */
+export function resetTemp(temp) {
+  for(let prop in temp){
+    temp[prop] = null;
+  }
+  return temp;
+}

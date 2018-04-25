@@ -4,6 +4,8 @@
     <el-row>
       <el-input style="width:200px;" v-model="tableQuery.rname" placeholder="角色名"></el-input>
       <span style="margin-right: 15px;"></span>
+      <el-input style="width:200px;" v-model="tableQuery.rval" placeholder="角色值"></el-input>
+      <span style="margin-right: 15px;"></span>
       <el-tooltip class="item" content="搜索" placement="top">
         <el-button icon="el-icon-search" circle @click="fetchData()"></el-button>
       </el-tooltip>
@@ -25,13 +27,13 @@
       <el-table-column prop="rdesc" label="角色描述" ></el-table-column>
       <el-table-column prop="rval" label="角色值" ></el-table-column>
 
-      <el-table-column prop="time" label="创建时间" >
+      <el-table-column prop="created" label="创建时间" >
         <template slot-scope="scope">
           <span>{{parseTime(scope.row.created)}}</span>
         </template>
       </el-table-column>
 
-      <el-table-column prop="time" label="更新时间" >
+      <el-table-column prop="updated" label="更新时间" >
         <template slot-scope="scope">
           <span>{{parseTime(scope.row.updated)}}</span>
         </template>
@@ -94,8 +96,8 @@
 <script>
 
   import { addRole, deleteRole, queryRole, updateRole, updateRolePerms } from '@/api/role'
-  import { parseTime} from '@/utils'
-  import { pageParamNames } from '@/utils/constants'
+  import { parseTime, resetTemp } from '@/utils'
+  import { pageParamNames, addSuccNotify, deleteSuccNotify, updateSuccNotify,deleteConfirm } from '@/utils/constants'
   import debounce from 'lodash/debounce'
 
   export default {
@@ -143,9 +145,12 @@
 
     watch:{
       //延时查询
-      'tableQuery.nick': debounce( function(){
+      'tableQuery.rname': debounce( function(){
         this.fetchData()
-      },500)
+      },500),
+      'tableQuery.rval': debounce( function(){
+        this.fetchData()
+      },500),
     },//watch
 
     methods: {
@@ -184,54 +189,38 @@
       },
       updateData() {
         this.$refs['dataForm'].validate((valid) => {
-          if (valid) {
+          if (!valid) return;
             const tempData = Object.assign({}, this.temp)//copy obj
             updateRole(tempData).then(res => {
               this.temp.updated = res.data.updated
-              /*
-              for (const v of this.tableData) {
-                if (v.rid === this.temp.rid) {
-                  const index = this.tableData.indexOf(v)
-                  this.tableData.splice(index, 1, this.temp)
-                  break
-                }
-              }
-              */
               this.tableData.splice(this.temp.idx, 1, this.temp)
               this.dialogFormVisible = false
-              this.$notify({ title: '成功', message: '更新成功', type: 'success', duration: 2000 })
+              this.$notify(updateSuccNotify)
             })
-          }
+
         })
       },
 
       //删除
       handleDelete(idx,row) {
 
-        this.$confirm('您确定要永久删除该用户？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
+        this.$confirm('您确定要永久删除该用户？', '提示', deleteConfirm).then(() => {
 
           deleteRole( {rid : row.rid} ).then(res => {
             this.tableData.splice(idx, 1)
             --this.tablePage.total
             this.dialogFormVisible = false
-            this.$notify({ title: '成功', message: '删除成功', type: 'success', duration: 2000 })
+            this.$notify(deleteSuccNotify)
           })
 
         }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消删除'
-          });
+          this.$message({type: 'info',message: '已取消删除'});
         });
       },
 
       //新增
       handleCreate() {
-        this.resetTemp()
+        resetTemp(this.temp)
         this.dialogStatus = 'create'
         this.dialogFormVisible = true
         this.$nextTick(() => {
@@ -240,31 +229,20 @@
       },
       createData() {
         this.$refs['dataForm'].validate((valid) => {
-          if (valid) {
+          if (!valid) return;
             addRole(this.temp).then((res) => {
               this.temp.rid = res.data.rid;//后台传回来新增记录的id
               this.temp.created = res.data.created;//后台传回来新增记录的时间
               this.tableData.unshift(this.temp)
               ++this.tablePage.total
               this.dialogFormVisible = false
-              this.$notify({ title: '成功', message: '创建成功', type: 'success', duration: 2000 })
+              this.$notify(addSuccNotify)
             })
-          }
+
         })
       },
 
-      //清空缓存对象
-      resetTemp() {
-        this.temp = {
-          idx: null,
-          rid: null,
-          rname: null,
-          rdesc: null,
-          rval: null,
-          created: null,
-          updated: null
-        }
-      },
+
 
 
     }
