@@ -4,7 +4,9 @@
     <el-row>
       <el-input style="width:200px;" v-model="tableQuery.nick" placeholder="昵称"></el-input>
       <span style="margin-right: 15px;"></span>
-      <el-button icon="el-icon-search" circle @click="fetchData()"></el-button>
+      <el-tooltip class="item" content="搜索" placement="top">
+        <el-button icon="el-icon-search" circle @click="fetchData()"></el-button>
+      </el-tooltip>
     </el-row>
 
     <div style="margin-bottom: 30px;"></div>
@@ -36,7 +38,12 @@
 
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <el-button @click="handleUpdate(scope.row)" type="text" size="small">编辑</el-button>
+          <el-tooltip class="item" content="编辑" placement="top">
+            <el-button @click="handleUpdate(scope.$index,scope.row)" size="mini" type="info" icon="el-icon-edit" circle plain></el-button>
+          </el-tooltip>
+          <el-tooltip class="item" content="删除" placement="top">
+            <el-button @click="handleDelete(scope.$index,scope.row)" size="mini" type="danger" icon="el-icon-delete" circle plain></el-button>
+          </el-tooltip>
         </template>
       </el-table-column>
 
@@ -86,7 +93,7 @@
 
 <script>
 
-  import { queryUser,updateUser,addUser } from '@/api/user'
+  import { queryUser,updateUser,addUser,deleteUser } from '@/api/user'
   import { parseTime} from '@/utils'
   import { pageParamNames } from '@/utils/constants'
   import debounce from 'lodash/debounce'
@@ -160,15 +167,28 @@
 
       }
     },
+
+    computed: {
+      searchIndicator() {
+        if (this.searchBox.searching) {
+          return '⟳ Fetching new results'
+        } else if (this.searchBox.dirty) {
+          return '... Typing'
+        } else {
+          return '✓ Done'
+        }
+      }
+    },
+
     created(){
       this.fetchData()
     },
+
     watch:{
       //延时查询
       'tableQuery.nick': debounce( function(){
         this.fetchData()
       },500)
-
     },//watch
 
     methods: {
@@ -187,7 +207,6 @@
       fetchData() {
         this.tableLoading = true
         queryUser(this.tableQuery,this.tablePage).then(res => {
-          console.log("fetchData: %o",res)
           this.tableData = res.data.page.records
           this.tableLoading = false
           //设置后台返回的分页参数
@@ -196,9 +215,8 @@
       },
 
       //更新
-      handleUpdate(row) {
+      handleUpdate(idx,row) {
         this.temp = Object.assign({}, row) // copy obj
-        this.temp.time = new Date()
         this.dialogStatus = 'update'
         this.dialogFormVisible = true
         //清空验证表单
@@ -210,9 +228,7 @@
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
             const tempData = Object.assign({}, this.temp)//copy obj
-            console.log("update Data: %o",tempData)
             updateUser(tempData).then(res => {
-
               this.temp.updated = res.data.updated
               for (const v of this.tableData) {
                 if (v.uid === this.temp.uid) {
@@ -231,6 +247,29 @@
             })
           }
         })
+      },
+
+      //删除
+      handleDelete(idx,row) {
+
+        this.$confirm('您确定要永久删除该用户？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+
+          deleteUser( {uid : row.uid} ).then(res => {
+            this.tableData.splice(idx, 1)
+            this.dialogFormVisible = false
+            this.$notify({ title: '成功', message: '删除成功', type: 'success', duration: 2000 })
+          })
+        }).catch((err) => {
+          console.log(err)
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        });
       },
 
       //新增

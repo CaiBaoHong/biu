@@ -28,7 +28,6 @@ service.interceptors.request.use(config => {
 service.interceptors.response.use(
 
   res => {
-    console.log("service.interceptors.response : %o",res)
     //如果后台返回的json显示成功，pass
     if(res.data.succ) return res;
 

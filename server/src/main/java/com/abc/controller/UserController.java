@@ -83,6 +83,23 @@ public class UserController {
                 .data("created",user.getCreated());
     }
 
+    @DeleteMapping
+    public Json delete(@RequestBody String body) {
+
+        String oper = "delete user";
+        log.info("{}, body: {}",oper,body);
+
+        JSONObject jsonObj = JSON.parseObject(body);
+        String uid = jsonObj.getString("uid");
+
+        if (StringUtils.isEmpty(uid)) {
+            return Json.fail(oper, "无法删除用户：参数为空（用户id）");
+        }
+
+        boolean success = userService.deleteById(uid);
+        return Json.result(oper, success);
+    }
+
 
     /**
      * 更新用户的角色
@@ -131,13 +148,12 @@ public class UserController {
         if (size == 0) size = 10;
 
         Wrapper<User> queryParams = new EntityWrapper<>();
-        queryParams.orderBy("updated", false);
+        queryParams.orderBy("updated", true);
         queryParams.setSqlSelect("uid","uname","nick","created","updated");
         if (StringUtils.isNotBlank(nick)) {
             queryParams.like("nick", nick);
         }
         Page<User> page = userService.selectPage(new Page<>(current, size), queryParams);
-        page.getRecords().stream().forEach(user -> System.out.println(ReflectionToStringBuilder.toString(user)));
         return Json.succ(oper).data("page", page);
     }
 

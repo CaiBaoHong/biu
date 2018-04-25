@@ -15,19 +15,26 @@ export function queryUser(queryParam,pageParam) {
   })
 }
 
-export function updateUser(tempData) {
+export function updateUser(data) {
   return request({
     url: '/user/info',
     method: 'patch',
-    data: tempData
+    data
   })
 }
 
-export function addUser(tempData) {
+export function addUser(data) {
   return request({
     url: '/user',
     method: 'post',
-    data: tempData
+    data
   })
 }
 
+export function deleteUser(data) {
+  return request({
+    url: '/user',
+    method: 'delete',
+    data
+  })
+}
