@@ -156,6 +156,10 @@
          *
          *   所以下面就要对路由元数据做预处理。修正这种特殊的情况。把单个菜单但是仍在children中声明路由信息的树状结构，改成一个非树状结构。
          *
+         *   最佳实践：
+         *   在meta中声明perm
+         *   在children[0].meta中声明title，
+         *
          *
          */
         let routeArr = asyncRouterMap.map(route=>{
