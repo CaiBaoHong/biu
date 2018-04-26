@@ -9,7 +9,7 @@ export default {
     user_manage: '用户管理',
     role_manage: '角色管理',
     perm_manage: '权限管理',
-
+    perm_assign: '权限分配',
 
     dashboard: 'Dashboard',
     introduction: 'Introduction',
