@@ -34,18 +34,47 @@
     <vue-json-pretty :data="menuBtnTree"></vue-json-pretty>
 
     <h4>被选中的菜单按钮节点的json：</h4>
+
     <el-row :gutter="20">
       <el-col :span="4">
         <el-button @click="getCheckedKeys">获取选中节点的key</el-button>
       </el-col>
-      <el-col :span="20">{{checkedKeys}}</el-col>
+      <el-col :span="20">
+        <vue-json-pretty :data="checkedKeys"></vue-json-pretty>
+      </el-col>
     </el-row>
+
     <div style="margin-bottom: 10px;"></div>
+
     <el-row :gutter="20">
       <el-col :span="4">
         <el-button @click="getHalfCheckedKeys">获取半选节点的key</el-button>
       </el-col>
-      <el-col :span="20">{{halfCheckedKeys}}</el-col>
+      <el-col :span="20">
+        <vue-json-pretty :data="halfCheckedKeys"></vue-json-pretty>
+      </el-col>
+    </el-row>
+
+    <div style="margin-bottom: 10px;"></div>
+
+    <el-row :gutter="20">
+      <el-col :span="4">
+        <el-button @click="getCheckedNodes">获取选中节点的Node</el-button>
+      </el-col>
+      <el-col :span="20">
+        <vue-json-pretty :data="checkedNodes"></vue-json-pretty>
+      </el-col>
+    </el-row>
+
+    <div style="margin-bottom: 10px;"></div>
+
+    <el-row :gutter="20">
+      <el-col :span="4">
+        <el-button @click="getHalfCheckedNodes">获取半选节点的Node</el-button>
+      </el-col>
+      <el-col :span="20">
+        <vue-json-pretty :data="halfCheckedNodes"></vue-json-pretty>
+      </el-col>
     </el-row>
 
 
@@ -58,6 +87,13 @@
       default-expand-all
       :default-checked-keys="permsArr"
       :props="{children: 'children',label: 'label'}">
+
+      <span slot-scope="{ node, data }">
+        <span>{{node.label + " "+ data.id}}</span>
+        <el-tag v-if="data.type==1" type="success" size="mini" >菜单</el-tag>
+        <el-tag v-else-if="data.type==2" type="warning" size="mini" >按钮</el-tag>
+      </span>
+
     </el-tree>
 
   </div>
@@ -95,6 +131,14 @@
          * 半选中状态的节点的key
          */
         halfCheckedKeys:[],
+        /**
+         * 被选中的节点的node
+         */
+        checkedNodes:[],
+        /**
+         * 半选中状态的节点的node
+         */
+        halfCheckedNodes:[],
       }
     },
     computed: {
@@ -122,6 +166,16 @@
       //获取半选中状态的节点的key
       getHalfCheckedKeys(){
         this.halfCheckedKeys = this.$refs.permTree.getHalfCheckedKeys();
+      },
+
+      //获取选中状态的节点的key
+      getCheckedNodes() {
+        this.checkedNodes = this.$refs.permTree.getCheckedNodes();
+      },
+
+      //获取半选中状态的节点的key
+      getHalfCheckedNodes(){
+        this.halfCheckedNodes = this.$refs.permTree.getHalfCheckedNodes();
       },
 
       //对路由元数据（即路由表）做处理生成可以做权限控制的菜单、按钮树
@@ -193,18 +247,22 @@
           let obj = {};
 
           if(route.meta){
+            //菜单
             obj.id = route.meta.perm
             obj.label = this.generateTitle(route.meta.title)
+            obj.type = 1;// 1是菜单代码
           }else{
+            // 按钮
             obj.id = route.perm
             obj.label = route.title
+            obj.type = 2;// 2是按钮代码
           }
 
           if(route.children){
-            console.log("route children")
+            //菜单
             obj.children = this.mapToTree(route.children)
           }else if(route.meta && route.meta.btns){
-            console.log("route meta btns")
+            //按钮
             obj.children = this.mapToTree(route.meta.btns)
           }
           return obj;

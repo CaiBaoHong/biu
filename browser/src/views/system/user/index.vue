@@ -38,12 +38,18 @@
 
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <el-tooltip class="item" content="编辑" placement="top">
-            <el-button @click="handleUpdate(scope.$index,scope.row)" size="mini" type="info" icon="el-icon-edit" circle
-                       plain></el-button>
+          <el-tooltip content="编辑" placement="top">
+            <el-button @click="handleUpdate(scope.$index,scope.row)" size="medium" type="info" icon="el-icon-edit"
+                       circle plain></el-button>
           </el-tooltip>
-          <el-tooltip class="item" content="删除" placement="top">
-            <el-button @click="handleDelete(scope.$index,scope.row)" size="mini" type="danger" icon="el-icon-delete"
+
+          <el-tooltip content="修改角色" placement="top">
+            <el-button @click="handleUpdate(scope.$index,scope.row)" size="medium" type="warning" icon="el-icon-star-off"
+                       circle plain></el-button>
+          </el-tooltip>
+
+          <el-tooltip content="删除" placement="top">
+            <el-button @click="handleDelete(scope.$index,scope.row)" size="medium" type="danger" icon="el-icon-delete"
                        circle plain></el-button>
           </el-tooltip>
         </template>

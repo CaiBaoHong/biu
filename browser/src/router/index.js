@@ -76,11 +76,14 @@ export const asyncRouterMap = [
   {
     path: '/system',
     component: Layout,
-    redirect: '/system/user',
-    meta: {title: 'system', icon: 'component', perm: 'system:*'},
+    redirect: '/system/user_manage',
+    meta: { title: 'system', icon: 'component', perm: 'system' },
     children: [
+      // 用户管理
       {
-        path: 'user_manage', name: 'user_manage', component: _import('system/user/index'),
+        path: 'user_manage',
+        name: 'user_manage',
+        component: _import('system/user/index'),
         meta: {
           title: 'user_manage',
           icon: 'documentation',
@@ -92,9 +95,11 @@ export const asyncRouterMap = [
           ]
         },
       },
-
+      // 角色管理
       {
-        path: 'role_manage', name: 'role_manage', component: _import('system/role/index'),
+        path: 'role_manage',
+        name: 'role_manage',
+        component: _import('system/role/index'),
         meta: {
           title: 'role_manage',
           icon: 'documentation',
@@ -106,7 +111,7 @@ export const asyncRouterMap = [
           ]
         },
       },
-
+      // 权限管理
       {
         path: 'perm_manage', name: 'perm_manage', component: _import('system/perm/index'),
         meta: {
@@ -120,8 +125,7 @@ export const asyncRouterMap = [
           ]
         }
       },
-
-
+      // 权限分配
       {
         path: 'perm_assign', name: 'perm_assign', component: _import('system/perm/perm_assign'),
         meta: {
@@ -134,24 +138,38 @@ export const asyncRouterMap = [
             {perm: 'perm_assign:update', title: '更新权限分配'},
           ]
         },
-
       },
 
     ]
   },
 
+  // 权限测试
+  {
+    path: '/permission',
+    redirect: '/permission/index',
+    component: Layout,
+    children: [{
+      path: 'index',
+      name: 'permission',
+      component: _import('permission/index'),
+      meta: { title: 'permission', icon: 'lock'}
+    }]
+  },
+
+  // 菜单1
   {
     path: '/menu1',
     redirect: '/menu1/index',
     component: Layout,
-    meta: { title:'menu1', perm: 'menu:1' },
+    meta: { perm: 'menu:1' },
     children: [{
       path: 'index',
       name: 'menu1',
       component: _import('menu1/index'),
-      meta: {  icon: 'lock' }
+      meta: { title:'menu1', icon: 'lock' }
     }]
   },
+  // 菜单2
   {
     path: '/menu2',
     redirect: '/menu2/index',
@@ -164,6 +182,7 @@ export const asyncRouterMap = [
       meta: {title: 'menu2', icon: 'lock'}
     }]
   },
+  // 菜单3
   {
     path: '/menu3',
     redirect: '/menu3/index',
@@ -177,23 +196,6 @@ export const asyncRouterMap = [
     }]
   },
 
-
-  {
-    path: '/permission',
-    component: Layout,
-    redirect: '/permission/index',
-    meta: {roles: ['admin']}, // you can set roles in root nav
-    children: [{
-      path: 'index',
-      component: _import('permission/index'),
-      name: 'permission',
-      meta: {
-        title: 'permission',
-        icon: 'lock',
-        roles: ['admin'] // or you can only set roles in sub nav
-      }
-    }]
-  },
 
   {
     path: '/icon',
