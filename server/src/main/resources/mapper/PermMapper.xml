@@ -8,4 +8,18 @@
         AND ur.user_id = #{userId}
     </select>
 
+    <select id="getPermValsByRoleId" resultType="Perm">
+        SELECT p.pval,leaf FROM perm p, role_perm rp
+        WHERE p.pid = rp.perm_id AND rp.role_id = #{roleId}
+    </select>
+
+    <insert id="batchInsertIgnore">
+        INSERT INTO perm (pid,pname,ptype,pval,leaf,created) VALUES
+        <foreach collection="perms" item="p" separator=",">
+            (#{p.pid},#{p.pname},#{p.ptype},#{p.pval},#{p.leaf},#{p.created})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        pname=VALUES(pname),ptype=VALUES(ptype),pval=VALUES(pval),leaf=VALUES(leaf),updated=now();
+    </insert>
+
 </mapper>

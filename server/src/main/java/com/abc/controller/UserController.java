@@ -2,6 +2,8 @@ package com.abc.controller;
 
 import com.abc.entity.User;
 import com.abc.entity.UserRole;
+import com.abc.service.PermService;
+import com.abc.service.RoleService;
 import com.abc.service.UserRoleService;
 import com.abc.service.UserService;
 import com.abc.vo.Json;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -39,6 +42,10 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private RoleService roleService;
+    @Autowired
+    private PermService permService;
     @Autowired
     private UserRoleService userRoleService;
 
@@ -194,6 +201,21 @@ public class UserController {
         return Json.result(oper, success).data("updated",user.getUpdated());
     }
 
+    /**
+     * 查找用户的角色
+     * @param uid
+     * @return
+     */
+    @GetMapping("/{uid}/roles")
+    public Json findUserRoles(@PathVariable String uid){
+        String oper = "find user roles";
+        log.info("{}, uid: {}", oper, uid);
+        if (StringUtils.isBlank(uid)){
+            return Json.fail(oper, "无法查询当前用户的角色值：参数为空（用户id）");
+        }
+        List<String> rids = roleService.getRoleIdsByUserId(uid);
+        return Json.succ(oper,"rids",rids);
+    }
 
 
 

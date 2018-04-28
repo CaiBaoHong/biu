@@ -38,3 +38,22 @@ export function deleteUser(data) {
     data
   })
 }
+
+export function findUserRoleIds(uid) {
+  return request({
+    url: '/user/'+uid+'/roles',
+    method: 'get'
+  })
+}
+
+/**
+ * 更新用户的角色
+ * @param perm
+ */
+export function updateUserRoles(data) {
+  return request({
+    url: '/user/role',
+    method: 'patch',
+    data
+  })
+}

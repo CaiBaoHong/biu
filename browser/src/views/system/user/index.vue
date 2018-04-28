@@ -44,7 +44,7 @@
           </el-tooltip>
 
           <el-tooltip content="修改角色" placement="top">
-            <el-button @click="handleUpdate(scope.$index,scope.row)" size="medium" type="warning" icon="el-icon-star-off"
+            <el-button @click="handleUpdateUserRoles(scope.$index,scope.row)" size="medium" type="warning" icon="el-icon-star-off"
                        circle plain></el-button>
           </el-tooltip>
 
@@ -69,6 +69,7 @@
       :total="tablePage.total">
     </el-pagination>
 
+    <!--弹出窗口：编辑用户-->
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="30%" >
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="150px"
                style='width: 400px; margin-left:50px;'>
@@ -97,12 +98,31 @@
       </div>
     </el-dialog>
 
+    <!--弹出窗口：修改用户角色-->
+    <el-dialog title="修改用户的角色" :visible.sync="editRolesDialogVisible" width="50%" >
+      <div>
+        <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">全选</el-checkbox>
+        <div style="margin: 15px 0;"></div>
+        <el-checkbox-group v-model="updateUserRolesData.rids" >
+          <el-checkbox v-for="role in allRoles"
+                       :disabled="role.rval=='root'"
+                       :label="role.rid"
+                       :key="role.rid">{{role.rname}}</el-checkbox>
+        </el-checkbox-group>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="editRolesDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="updateUserRoles">确定</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
 <script>
 
-  import {queryUser, updateUser, addUser, deleteUser} from '@/api/user'
+  import {queryUser, updateUser, addUser, deleteUser,findUserRoleIds,updateUserRoles} from '@/api/user'
+  import {listRoles} from '@/api/role'
   import {parseTime,resetTemp} from '@/utils'
   import {pageParamNames, addSuccNotify, deleteSuccNotify, updateSuccNotify,deleteConfirm} from '@/utils/constants'
   import debounce from 'lodash/debounce'
@@ -157,6 +177,7 @@
           total: null
         },
         dialogFormVisible: false,
+        editRolesDialogVisible: false,
         dialogStatus: '',
         temp: {
           idx: null, //tableData中的下标
@@ -177,6 +198,15 @@
           pwd: [{validator: validatePass, trigger: 'blur'}],
           pwd2: [{validator: validatePass2, trigger: 'change'}]
         },
+        checkAll: false,
+        isIndeterminate: true,
+        // 可供选择的角色
+        allRoles:[],
+        updateUserRolesData:{
+          uid: null,
+          rids: []
+        }
+
 
       }
     },
@@ -193,6 +223,13 @@
     },//watch
 
     methods: {
+
+      //全选
+      handleCheckAllChange(val) {
+        let allRids = this.allRoles.map(role=>role.rid)
+        this.updateUserRolesData.rids = val ? allRids : [];
+        this.isIndeterminate = false;
+      },
 
       //分页
       handleSizeChange(val) {
@@ -241,6 +278,31 @@
         })
       },
 
+
+      //更新用户的角色
+      handleUpdateUserRoles(idx, row) {
+        // 更新缓存数据
+        this. updateUserRolesData = { uid: row.uid, rids: [] }
+        // 加载所有角色，假设整个系统只允许有一个超级管理员，不显示超级管理员角色。
+        if(this.allRoles.length==0){
+          listRoles().then(res=>{
+            this.allRoles = res.data.list
+          })
+        }
+        // 加载用户已有角色。
+        findUserRoleIds(row.uid).then(res=>{
+          this.updateUserRolesData.rids = res.data.rids
+        })
+        // 显示弹窗
+        this.editRolesDialogVisible = true
+      },
+      updateUserRoles() {
+        updateUserRoles(this.updateUserRolesData).then(res=>{
+          this.editRolesDialogVisible = false
+          this.$notify(updateSuccNotify)
+        })
+      },
+
       //删除
       handleDelete(idx, row) {
 
@@ -283,6 +345,7 @@
 
         })
       },
+
 
 
 

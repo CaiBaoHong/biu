@@ -20,10 +20,11 @@ public class Perm extends Model<Perm> {
     public static int PTYPE_BUTTON = 2;
 
     @TableId(type = IdType.ID_WORKER_STR)
-    private String pid;       // 权限id
+    private String pid;     // 权限id
     private String pname;   // 权限名称
     private Integer ptype;  // 权限类型：1.菜单；2.按钮
     private String pval;    // 权限值，shiro的权限控制表达式
+    private Boolean leaf;   // 是否叶子节点
     private Date created;   // 创建时间
     private Date updated;   // 修改时间
 
@@ -94,5 +95,13 @@ public class Perm extends Model<Perm> {
 
     public void setUpdated(Date updated) {
         this.updated = updated;
+    }
+
+    public Boolean getLeaf() {
+        return leaf;
+    }
+
+    public void setLeaf(Boolean leaf) {
+        this.leaf = leaf;
     }
 }

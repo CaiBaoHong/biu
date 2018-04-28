@@ -67,3 +67,25 @@ export function updateRolePerms(data) {
     data
   })
 }
+
+/**
+ * 列出除了管理员之外的所有角色
+ * @param perm
+ */
+export function listRoles() {
+  return request({
+    url: '/role/list',
+    method: 'get'
+  })
+}
+
+/**
+ * 查选角色的所有权限值
+ * @param rid
+ */
+export function findRolePvals(rid) {
+  return request({
+    url: '/role/'+rid+'/perms',
+    method: 'get'
+  })
+}

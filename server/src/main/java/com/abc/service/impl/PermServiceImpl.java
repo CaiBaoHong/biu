@@ -18,4 +18,14 @@ public class PermServiceImpl extends ServiceImpl<PermMapper, Perm> implements Pe
         List<String> list = baseMapper.getPermsByUserId(userId);
         return list.stream().collect(Collectors.toSet());
     }
+
+    @Override
+    public List<Perm> getPermValsByRoleId(String roleId) {
+        return baseMapper.getPermValsByRoleId(roleId);
+    }
+
+    @Override
+    public void batchInsertIgnore(List<Perm> perms) {
+        baseMapper.batchInsertIgnore(perms);
+    }
 }

@@ -19,4 +19,9 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
         return list.stream().collect(Collectors.toSet());
     }
 
+    @Override
+    public List<String> getRoleIdsByUserId(String userId) {
+        return baseMapper.getRoleIdsByUserId(userId);
+    }
+
 }

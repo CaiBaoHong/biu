@@ -12,4 +12,8 @@ public interface PermMapper extends BaseMapper<Perm> {
 
     List<String> getPermsByUserId(@Param("userId") String userId);
 
+    List<Perm> getPermValsByRoleId(@Param("roleId") String roleId);
+
+    void batchInsertIgnore(@Param("perms") List<Perm> perms);
+
 }
