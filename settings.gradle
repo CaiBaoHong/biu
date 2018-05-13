@@ -1,4 +1,5 @@
 rootProject.name = 'biu'
 include 'server'
 include 'browser'
+include 'browser2'
 
