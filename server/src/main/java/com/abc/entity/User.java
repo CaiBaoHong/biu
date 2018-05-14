@@ -1,5 +1,6 @@
 package com.abc.entity;
 
+import com.abc.vo.AuthVo;
 import com.baomidou.mybatisplus.activerecord.Model;
 import com.baomidou.mybatisplus.annotations.TableField;
 import com.baomidou.mybatisplus.annotations.TableId;
@@ -23,14 +24,15 @@ public class User extends Model<User> {
     private String nick;    // 用户昵称，可改
     private String pwd;     // 已加密的登录密码
     private String salt;    // 加密盐值
+    private Boolean lock;   // 是否锁定
     private Date created;   // 创建时间
     private Date updated;   // 修改时间
 
     @TableField(exist = false)
-    private Set<String> roles = new HashSet<>();    //用户所有角色值，用于shiro做角色权限的判断
+    private Set<AuthVo> roles = new HashSet<>();    //用户所有角色值，用于shiro做角色权限的判断
 
     @TableField(exist = false)
-    private Set<String> perms = new HashSet<>();    //用户所有权限值，用于shiro做资源权限的判断
+    private Set<AuthVo> perms = new HashSet<>();    //用户所有权限值，用于shiro做资源权限的判断
 
     @Override
     protected Serializable pkVal() {
@@ -93,19 +95,27 @@ public class User extends Model<User> {
         this.updated = updated;
     }
 
-    public Set<String> getRoles() {
+    public Set<AuthVo> getRoles() {
         return roles;
     }
 
-    public void setRoles(Set<String> roles) {
+    public void setRoles(Set<AuthVo> roles) {
         this.roles = roles;
     }
 
-    public Set<String> getPerms() {
+    public Set<AuthVo> getPerms() {
         return perms;
     }
 
-    public void setPerms(Set<String> perms) {
+    public void setPerms(Set<AuthVo> perms) {
         this.perms = perms;
+    }
+
+    public Boolean getLock() {
+        return lock;
+    }
+
+    public void setLock(Boolean lock) {
+        this.lock = lock;
     }
 }

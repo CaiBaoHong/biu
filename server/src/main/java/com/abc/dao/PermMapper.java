@@ -10,7 +10,7 @@ import java.util.List;
 @Mapper
 public interface PermMapper extends BaseMapper<Perm> {
 
-    List<String> getPermsByUserId(@Param("userId") String userId);
+    List<Perm> getPermsByUserId(@Param("userId") String userId);
 
     List<Perm> getPermValsByRoleId(@Param("roleId") String roleId);
 

@@ -1,11 +1,10 @@
 package com.abc.config;
 
-import com.abc.shiro.BiuRealm;
+import com.abc.shiro.UserRealm;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.spring.web.config.DefaultShiroFilterChainDefinition;
 import org.apache.shiro.spring.web.config.ShiroFilterChainDefinition;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,7 +13,7 @@ public class ShiroConfig {
 
     @Bean
     public Realm realm() {
-        return new BiuRealm();
+        return new UserRealm();
     }
 
     @Bean

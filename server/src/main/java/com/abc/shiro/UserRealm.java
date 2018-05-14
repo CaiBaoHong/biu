@@ -1,10 +1,12 @@
 package com.abc.shiro;
 
 
+import com.abc.entity.Perm;
 import com.abc.entity.User;
 import com.abc.service.PermService;
 import com.abc.service.RoleService;
 import com.abc.service.UserService;
+import com.abc.vo.AuthVo;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
@@ -20,13 +22,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 这个类是参照JDBCRealm写的，主要是自定义了如何查询用户信息，如何查询用户的角色和权限，如何校验密码等逻辑
  */
-public class BiuRealm extends AuthorizingRealm {
+public class UserRealm extends AuthorizingRealm {
 
-    private static final Logger log =LoggerFactory.getLogger(BiuRealm.class);
+    private static final Logger log =LoggerFactory.getLogger(UserRealm.class);
 
     @Autowired
     private UserService userService;
@@ -53,13 +56,13 @@ public class BiuRealm extends AuthorizingRealm {
         }
 
         User user = (User) getAvailablePrincipal(principals);
-        Set<String> roles = user.getRoles();
-        Set<String> perms = user.getPerms();
+        Set<AuthVo> roles = user.getRoles();
+        Set<AuthVo> perms = user.getPerms();
         log.info("获取角色权限信息: roles: {}, perms: {}",roles,perms);
 
         SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
-        info.setRoles(roles);
-        info.setStringPermissions(perms);
+        info.setRoles(roles.stream().map(AuthVo::getVal).collect(Collectors.toSet()));
+        info.setStringPermissions(perms.stream().map(AuthVo::getVal).collect(Collectors.toSet()));
         return info;
     }
 
@@ -80,8 +83,8 @@ public class BiuRealm extends AuthorizingRealm {
 
         //查询用户的角色和权限存到SimpleAuthenticationInfo中，这样在其它地方
         //SecurityUtils.getSubject().getPrincipal()就能拿出用户的所有信息，包括角色和权限
-        Set<String> roles = roleService.getRolesByUserId(userDB.getUid());
-        Set<String> perms = permService.getPermsByUserId(userDB.getUid());
+        Set<AuthVo> roles = roleService.getRolesByUserId(userDB.getUid());
+        Set<AuthVo> perms = permService.getPermsByUserId(userDB.getUid());
         userDB.getRoles().addAll(roles);
         userDB.getPerms().addAll(perms);
 

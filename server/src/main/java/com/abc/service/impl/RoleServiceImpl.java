@@ -1,8 +1,10 @@
 package com.abc.service.impl;
 
 import com.abc.dao.RoleMapper;
+import com.abc.entity.Perm;
 import com.abc.entity.Role;
 import com.abc.service.RoleService;
+import com.abc.vo.AuthVo;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
@@ -14,9 +16,9 @@ import java.util.stream.Collectors;
 public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements RoleService {
 
     @Override
-    public Set<String> getRolesByUserId(String userId) {
-        List<String> list = baseMapper.getRolesByUserId(userId);
-        return list.stream().collect(Collectors.toSet());
+    public Set<AuthVo> getRolesByUserId(String userId) {
+        List<Role> list = baseMapper.getRolesByUserId(userId);
+        return list.stream().map(r->new AuthVo(r.getRname(),r.getRval())).collect(Collectors.toSet());
     }
 
     @Override

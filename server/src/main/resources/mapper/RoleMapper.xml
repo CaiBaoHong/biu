@@ -2,8 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.abc.dao.RoleMapper">
 
-    <select id="getRolesByUserId" resultType="java.lang.String">
-        SELECT r.rval FROM role r, user_role ur
+    <select id="getRolesByUserId" resultType="Role">
+        SELECT r.name,r.rval FROM role r, user_role ur
         WHERE r.rid = ur.role_id AND ur.user_id = #{userId}
     </select>
 

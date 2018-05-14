@@ -10,7 +10,6 @@
         </span>
         <el-input name="username" type="text" v-model="loginForm.username" autoComplete="on" placeholder="帐号" />
       </el-form-item>
-
       <el-form-item prop="password">
         <span class="svg-container">
           <svg-icon icon-class="password" />
@@ -20,9 +19,7 @@
           <svg-icon icon-class="eye" />
         </span>
       </el-form-item>
-
       <el-button type="primary" style="width:100%;margin-bottom:30px;" :loading="loading" @click.native.prevent="handleLogin">logIn</el-button>
-
       <div class="tips">
         <span>管理员帐号 : admin</span>
         <span>密码 : 随便填</span>
@@ -42,10 +39,11 @@
 <script>
 import { isvalidUsername } from '@/utils/validate'
 import LangSelect from '@/components/LangSelect'
-import SocialSign from './socialsignin'
+import store from '@/store'
+import { Message } from 'element-ui'
 
 export default {
-  components: { LangSelect, SocialSign },
+  components: { LangSelect},
   name: 'login',
   data() {
     const validateUsername = (rule, value, callback) => {
@@ -65,7 +63,7 @@ export default {
     return {
       loginForm: {
         username: 'admin',
-        password: '1111111'
+        password: '123456'
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
@@ -90,6 +88,7 @@ export default {
           this.loading = true
           this.$store.dispatch('LoginByUsername', this.loginForm).then(() => {
             this.loading = false
+            this.generateUserRoutes()
             this.$router.push({ path: '/' })
           }).catch(() => {
             this.loading = false
@@ -100,6 +99,24 @@ export default {
         }
       })
     },
+
+    generateUserRoutes(){
+      store.dispatch('GetUserInfo').then(res => { // 拉取user_info
+        console.log("GetUserInfo: %o",res)
+        const perms = res.data.perms // note: roles must be a array! such as: ['editor','develop']
+        store.dispatch('GenerateRoutes', { perms }).then(() => { // 根据permss权限生成可访问的路由表
+          router.addRoutes(store.getters.addRouters) // 动态添加可访问路由表
+          next({ ...to, replace: true }) // hack方法 确保addRoutes已完成 ,set the replace: true so the navigation will not leave a history record
+        })
+      }).catch((err) => {
+        store.dispatch('FedLogOut').then(() => {
+          Message.error(err || 'Verification failed, please login again')
+          next({ path: '/' })
+        })
+      })
+
+    }
+
   },
 }
 </script>

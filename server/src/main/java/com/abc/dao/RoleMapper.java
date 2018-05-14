@@ -1,5 +1,6 @@
 package com.abc.dao;
 
+import com.abc.entity.Perm;
 import com.abc.entity.Role;
 import com.baomidou.mybatisplus.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
@@ -10,7 +11,7 @@ import java.util.List;
 @Mapper
 public interface RoleMapper extends BaseMapper<Role> {
 
-    List<String> getRolesByUserId(@Param("userId") String userId);
+    List<Role> getRolesByUserId(@Param("userId") String userId);
 
     List<String> getRoleIdsByUserId(@Param("userId") String userId);
 

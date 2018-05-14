@@ -3,6 +3,7 @@ package com.abc.service.impl;
 import com.abc.dao.PermMapper;
 import com.abc.entity.Perm;
 import com.abc.service.PermService;
+import com.abc.vo.AuthVo;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
@@ -14,9 +15,9 @@ import java.util.stream.Collectors;
 public class PermServiceImpl extends ServiceImpl<PermMapper, Perm> implements PermService {
 
     @Override
-    public Set<String> getPermsByUserId(String userId) {
-        List<String> list = baseMapper.getPermsByUserId(userId);
-        return list.stream().collect(Collectors.toSet());
+    public Set<AuthVo> getPermsByUserId(String userId) {
+        List<Perm> list = baseMapper.getPermsByUserId(userId);
+        return list.stream().map(p->new AuthVo(p.getPname(),p.getPval())).collect(Collectors.toSet());
     }
 
     @Override

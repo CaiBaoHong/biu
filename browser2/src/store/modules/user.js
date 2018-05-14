@@ -9,9 +9,11 @@ const user = {
     code: '',
     token: getToken(),
     name: '',
+    nick: '',
     avatar: avatorImg,
     introduction: '',
     roles: [],
+    perms: [],
     setting: {
       articlePlatform: []
     }
@@ -36,11 +38,17 @@ const user = {
     SET_NAME: (state, name) => {
       state.name = name
     },
+    SET_NICK: (state, nick) => {
+      state.nick = nick
+    },
     SET_AVATAR: (state, avatar) => {
       state.avatar = avatar
     },
     SET_ROLES: (state, roles) => {
       state.roles = roles
+    },
+    SET_PERMS: (state, perms) => {
+      state.perms = perms
     }
   },
 
@@ -63,22 +71,16 @@ const user = {
     // 获取用户信息
     GetUserInfo({ commit, state }) {
       return new Promise((resolve, reject) => {
-        getUserInfo(state.token).then(response => {
-          if (!response.data) { // 由于mockjs 不支持自定义状态码只能这样hack
-            reject('error')
-          }
-          const data = response.data
-
-          if (data.roles && data.roles.length > 0) { // 验证返回的roles是否是一个非空数组
-            commit('SET_ROLES', data.roles)
-          } else {
-            reject('getInfo: roles must be a non-null array !')
-          }
-
-          commit('SET_NAME', data.name)
-          //commit('SET_AVATAR', data.avatar)
-          commit('SET_INTRODUCTION', data.introduction)
-          resolve(response)
+        getUserInfo(state.token).then(res => {
+          if (!res) reject('res is null');
+          if (!res.data) reject('res.data is null');
+          if (!res.data.roles) reject('res.data.roles is null');
+          if (!res.data.perms) reject('res.data.perms is null');
+          commit('SET_ROLES', res.data.roles)
+          commit('SET_PERMS', res.data.perms)
+          commit('SET_NICK', res.data.nick)
+          commit('SET_NAME', res.data.name)
+          resolve(res)
         }).catch(error => {
           reject(error)
         })
