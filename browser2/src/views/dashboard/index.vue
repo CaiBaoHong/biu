@@ -6,8 +6,20 @@
         <img class="pan-thumb" :src="avatar">
       </div>
       <div class="info-container">
-        <span class="display_name">{{name}}</span>
-        <span style="font-size:20px;padding-top:20px;display:inline-block;">editor : dashboard</span>
+        <!--<span class="display_name">{{nick}}</span>-->
+        <div style="font-size: 38px;line-height: 38px;color: #212121;padding-top: 15px;">
+          {{nick}}
+        </div>
+        <div>
+          <span style="font-size:20px;padding-top:20px;display:inline-block;">角色：</span>
+          <el-tag style="margin-right: 5px;" type="success" v-for="r in roles" :key="r.val">{{r.name}}</el-tag>
+        </div>
+        <div>
+          <span style="font-size:20px;padding-top:20px;display:inline-block;">权限：</span>
+          <el-tag style="margin-right: 5px;" type="info" v-for="r in perms" :key="r.val">{{r.name}}</el-tag>
+        </div>
+
+
       </div>
     </div>
   </div>
@@ -88,11 +100,11 @@
     .info-container {
       position: relative;
       margin-left: 190px;
-      height: 150px;
-      line-height: 200px;
+      height: 80px;
+      /*line-height: 80px;*/
       .display_name {
-        font-size: 48px;
-        line-height: 48px;
+        font-size: 38px;
+        line-height: 38px;
         color: #212121;
         position: absolute;
         top: 25px;

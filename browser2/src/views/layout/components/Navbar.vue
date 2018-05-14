@@ -7,8 +7,9 @@
     <div class="right-menu">
       <error-log class="errLog-container right-menu-item"></error-log>
       <div style="display: inline-block;">
-        <span>帐号：</span><el-tag>admin</el-tag>
-        <span>角色：</span><el-tag type="success">管理员</el-tag>
+        <span>帐号：</span><el-tag style="margin-right: 20px;">{{name}}</el-tag>
+        <span>角色：</span>
+        <el-tag style="margin-right: 5px;" type="success" v-for="r in roles" :key="r.val">{{r.name}}</el-tag>
       </div>
       <el-dropdown class="avatar-container right-menu-item" trigger="click">
         <div class="avatar-wrapper">
@@ -52,7 +53,8 @@ export default {
     ...mapGetters([
       'sidebar',
       'name',
-      'avatar'
+      'avatar',
+      'roles',
     ])
   },
   methods: {

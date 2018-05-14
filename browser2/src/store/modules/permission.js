@@ -1,16 +1,16 @@
 import { asyncRouterMap, constantRouterMap } from '@/router'
 
 /**
- * 通过meta.role判断是否与当前用户权限匹配
- * @param roles
- * @param route
+ * 通过meta.perm判断是否与当前用户权限匹配
+ * @param perms 登录用户的权限
+ * @param route 路由对象
  */
-function hasPermission(roles, route) {
-  if (route.meta && route.meta.roles) {
-    return roles.some(role => route.meta.roles.indexOf(role) >= 0)
-  } else {
-    return true
+function hasPermission(perms, route) {
+  //如果没有声明meta或者meta.perm，都视为可以公共访问的路由
+  if (!route.meta || !route.meta.perm) {
+    return true;
   }
+  return perms.some(p=>p.val==route.meta.perm)
 }
 
 /**
@@ -18,11 +18,11 @@ function hasPermission(roles, route) {
  * @param asyncRouterMap
  * @param roles
  */
-function filterAsyncRouter(asyncRouterMap, roles) {
+function filterAsyncRouter(asyncRouterMap, perms) {
   const accessedRouters = asyncRouterMap.filter(route => {
-    if (hasPermission(roles, route)) {
+    if (hasPermission(perms, route)) {
       if (route.children && route.children.length) {
-        route.children = filterAsyncRouter(route.children, roles)
+        route.children = filterAsyncRouter(route.children, perms)
       }
       return true
     }

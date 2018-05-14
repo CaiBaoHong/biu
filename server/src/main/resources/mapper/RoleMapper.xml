@@ -3,7 +3,7 @@
 <mapper namespace="com.abc.dao.RoleMapper">
 
     <select id="getRolesByUserId" resultType="Role">
-        SELECT r.name,r.rval FROM role r, user_role ur
+        SELECT r.rname,r.rval FROM role r, user_role ur
         WHERE r.rid = ur.role_id AND ur.user_id = #{userId}
     </select>
 

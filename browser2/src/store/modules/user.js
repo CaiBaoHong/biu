@@ -72,6 +72,7 @@ const user = {
     GetUserInfo({ commit, state }) {
       return new Promise((resolve, reject) => {
         getUserInfo(state.token).then(res => {
+          console.log("getUserInfo: %o",res)
           if (!res) reject('res is null');
           if (!res.data) reject('res.data is null');
           if (!res.data.roles) reject('res.data.roles is null');
