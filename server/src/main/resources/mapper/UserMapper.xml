@@ -1,6 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.abc.dao.UserMapper">
+<mapper namespace="com.abc.dao.SysUserMapper">
 
+    <resultMap id="userMap" type="SysUser">
+        <id property="uid" column="uid"/>
+        <result property="uname"  column="uname" />
+        <result property="nick"  column="nick" />
+        <result property="pwd"  column="pwd" />
+        <result property="salt"  column="salt" />
+        <result property="lock"  column="lock" />
+        <result property="created"  column="created" jdbcType="TIMESTAMP" />
+        <result property="updated"  column="updated" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <!-- 一对多：user、role -->
+    <resultMap id="userIncludeRolesMap" extends="userMap" type="SysUser">
+        <collection property="roleList" columnPrefix="role_" resultMap="com.abc.dao.SysRoleMapper.roleMap">
+        </collection>
+    </resultMap>
+
+    <select id="selectUserIncludeRoles" resultMap="userIncludeRolesMap">
+        select
+          u.*,
+          r.rid as role_rid,
+          r.rname as role_rname,
+          r.rdesc as role_rdesc,
+          r.rval as role_rval,
+          r.created as role_created,
+          r.updated  as role_updated
+        from sys_user u
+        left join sys_user_role ur on u.uid = ur.user_id
+        left join sys_role r on ur.role_id = r.rid
+        <where>
+            <if test="nick != null and nick != ''">
+                u.`nick` like concat('%',#{nick},'%')
+            </if>
+        </where>
+        order by u.uid
+    </select>
 
 </mapper>

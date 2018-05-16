@@ -1,7 +1,7 @@
 package com.abc.controller;
 
-import com.abc.entity.Perm;
-import com.abc.service.PermService;
+import com.abc.entity.SysPerm;
+import com.abc.service.SysPermService;
 import com.abc.vo.Json;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -21,13 +21,13 @@ import java.util.Date;
  * created by CaiBaoHong at 2018/4/17 16:41<br>
  */
 @RestController
-@RequestMapping("/perm")
-public class PermController {
+@RequestMapping("/sys_perm")
+public class SysPermController {
 
-    private static final Logger log = LoggerFactory.getLogger(PermController.class);
+    private static final Logger log = LoggerFactory.getLogger(SysPermController.class);
 
     @Autowired
-    private PermService permService;
+    private SysPermService permService;
 
     /**
      * 新增权限
@@ -39,13 +39,13 @@ public class PermController {
     public Json add(@RequestBody String body) {
 
         String oper = "add permission";
-        Perm perm = JSON.parseObject(body, Perm.class);
+        SysPerm perm = JSON.parseObject(body, SysPerm.class);
 
         if (StringUtils.isEmpty(perm.getPval())) {
             return Json.fail(oper, "权限值不能为空");
         }
 
-        Perm permDB = permService.selectOne(new EntityWrapper<Perm>().eq("pval", perm.getPval()));
+        SysPerm permDB = permService.selectOne(new EntityWrapper<SysPerm>().eq("pval", perm.getPval()));
         if (permDB != null) {
             return Json.fail(oper, "权限值已存在：" + perm.getPval());
         }
@@ -97,7 +97,7 @@ public class PermController {
         if (current == 0) current = 1;
         if (size == 0) size = 10;
 
-        Wrapper<Perm> queryParams = new EntityWrapper<>();
+        Wrapper<SysPerm> queryParams = new EntityWrapper<>();
         queryParams.orderBy("created", false);
         queryParams.orderBy("updated", false);
         if (StringUtils.isNotBlank(pname)) {
@@ -106,7 +106,7 @@ public class PermController {
         if (StringUtils.isNotBlank(pval)) {
             queryParams.like("pval", pval);
         }
-        Page<Perm> page = permService.selectPage(new Page<>(current, size), queryParams);
+        Page<SysPerm> page = permService.selectPage(new Page<>(current, size), queryParams);
         return Json.succ(oper).data("page", page);
     }
 
@@ -123,7 +123,7 @@ public class PermController {
         String oper = "update permission";
         log.info("{}, body: {}", oper, body);
 
-        Perm perm = JSON.parseObject(body, Perm.class);
+        SysPerm perm = JSON.parseObject(body, SysPerm.class);
         if (StringUtils.isBlank(perm.getPid())) {
             return Json.fail(oper, "无法更新权限：参数为空（权限id）");
         }

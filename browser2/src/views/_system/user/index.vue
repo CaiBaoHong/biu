@@ -5,7 +5,7 @@
       <el-input style="width:200px;" v-model="tableQuery.nick" placeholder="昵称"></el-input>
       <span style="margin-right: 15px;"></span>
       <el-tooltip class="item" content="搜索" placement="top">
-        <el-button icon="el-icon-search" circle @click="fetchData()"></el-button>
+        <el-button icon="el-icon-search" circle @click="fetchData(1)"></el-button>
       </el-tooltip>
     </el-row>
 
@@ -23,39 +23,55 @@
       <el-table-column prop="uid" label="用户id"></el-table-column>
       <el-table-column prop="uname" label="登录名"></el-table-column>
       <el-table-column prop="nick" label="昵称"></el-table-column>
-
+      <el-table-column label="角色">
+        <template slot-scope="scope">
+          <el-tag style="margin: 2px;"
+                  v-for="role in scope.row.roleList"
+                  :key="role.rid">{{role.rname}}</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column prop="time" label="创建时间">
         <template slot-scope="scope">
           <span v-text="parseTime(scope.row.created)"></span>
         </template>
       </el-table-column>
-
       <el-table-column prop="time" label="更新时间">
         <template slot-scope="scope">
           <span v-text="parseTime(scope.row.updated)"></span>
         </template>
       </el-table-column>
-
       <el-table-column label="操作">
         <template slot-scope="scope">
           <el-tooltip content="编辑" placement="top">
             <el-button @click="handleUpdate(scope.$index,scope.row)" size="medium" type="info" icon="el-icon-edit"
                        circle plain></el-button>
           </el-tooltip>
-
-          <el-tooltip content="修改角色" placement="top">
-            <el-button @click="handleUpdateUserRoles(scope.$index,scope.row)" size="medium" type="warning" icon="el-icon-star-off"
+          <el-tooltip content="修改角色" placement="top" v-if="!hasAdminRole(scope.row)">
+            <el-button @click="handleUpdateUserRoles(scope.$index,scope.row)" size="medium" type="warning"
+                       icon="el-icon-star-off"
                        circle plain></el-button>
           </el-tooltip>
-
-          <el-tooltip content="删除" placement="top">
+          <el-tooltip content="删除" placement="top" v-if="!hasAdminRole(scope.row)">
             <el-button @click="handleDelete(scope.$index,scope.row)" size="medium" type="danger" icon="el-icon-delete"
                        circle plain></el-button>
           </el-tooltip>
+
+          <el-popover trigger="hover" placement="top" v-else style="display: inline-block;">
+            <el-alert type="warning" :closable="false" title="权限说明">
+              <div>为保证管理员在系统中的最高权限</div>
+              <div>不允许编辑管理员自身的角色</div>
+              <div>不允许删除管理员账号</div>
+            </el-alert>
+            <div slot="reference" >
+              <el-tag style="margin-left: 10px;" type="info">权限说明</el-tag>
+            </div>
+          </el-popover>
+
+
         </template>
       </el-table-column>
-
     </el-table>
+
 
     <div style="margin-bottom: 30px;"></div>
 
@@ -69,8 +85,8 @@
       :total="tablePage.total">
     </el-pagination>
 
-    <!--弹出窗口：编辑用户-->
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="30%" >
+    <!--弹出窗口：新增/编辑用户-->
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="30%">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="150px"
                style='width: 400px; margin-left:50px;'>
 
@@ -99,20 +115,21 @@
     </el-dialog>
 
     <!--弹出窗口：修改用户角色-->
-    <el-dialog title="修改用户的角色" :visible.sync="editRolesDialogVisible" width="50%" >
+    <el-dialog title="修改用户的角色" :visible.sync="editRolesDialogVisible" width="50%">
       <div>
         <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">全选</el-checkbox>
         <div style="margin: 15px 0;"></div>
-        <el-checkbox-group v-model="updateUserRolesData.rids" >
-          <el-checkbox v-for="role in allRoles"
-                       :disabled="role.rval=='root'"
-                       :label="role.rid"
-                       :key="role.rid">{{role.rname}}</el-checkbox>
+        <el-checkbox-group v-model="updateUserRolesData.rids">
+          <el-checkbox v-for="role in roleOptions"
+                       :disabled="role.val2=='root'"
+                       :label="role.id"
+                       :key="role.id">{{role.val}}
+          </el-checkbox>
         </el-checkbox-group>
       </div>
       <div slot="footer" class="dialog-footer">
         <el-button @click="editRolesDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="updateUserRoles">确定</el-button>
+        <el-button type="primary" @click="checkUpdateUserRolesData">确定</el-button>
       </div>
     </el-dialog>
 
@@ -121,11 +138,12 @@
 
 <script>
 
-  import {queryUser, updateUser, addUser, deleteUser,findUserRoleIds,updateUserRoles} from '@/api/user'
+  import {addUser, deleteUser, findUserRoleIds, queryUser, updateUser, updateUserRoles} from '@/api/user'
   import {listRoles} from '@/api/role'
-  import {parseTime,resetTemp} from '@/utils'
-  import {pageParamNames, addSuccNotify, deleteSuccNotify, updateSuccNotify,deleteConfirm} from '@/utils/constants'
+  import {parseTime, resetTemp} from '@/utils'
+  import {addSuccNotify, deleteConfirm, deleteSuccNotify, pageParamNames, updateSuccNotify} from '@/utils/constants'
   import debounce from 'lodash/debounce'
+  import optionApi from '@/api/option'
 
   export default {
 
@@ -201,18 +219,20 @@
         checkAll: false,
         isIndeterminate: true,
         // 可供选择的角色
-        allRoles:[],
-        updateUserRolesData:{
+        allRoles: [],
+        updateUserRolesData: {
+          idx: null,
           uid: null,
           rids: []
-        }
-
-
+        },
+        roleOptions:[],
+        roleMap: new Map()
       }
+
     },
 
     created() {
-      this.fetchData()
+      this.initData()
     },
 
     watch: {
@@ -224,9 +244,27 @@
 
     methods: {
 
+      initData(){
+        optionApi.listRoleOptions().then(res => {
+          res.data.options.forEach(obj => {
+            this.roleOptions.push(obj)
+            this.roleMap.set(obj.id, obj.val)
+          })
+          //查询数据
+          this.fetchData()
+        })
+      },
+
+      hasAdminRole(row){
+        if(row && row.roleList){
+          return row.roleList.some(role=>role.rval=='root')
+        }
+        return false
+      },
+
       //全选
       handleCheckAllChange(val) {
-        let allRids = this.allRoles.map(role=>role.rid)
+        let allRids = this.allRoles.map(role => role.rid)
         this.updateUserRolesData.rids = val ? allRids : [];
         this.isIndeterminate = false;
       },
@@ -242,7 +280,10 @@
       },
 
       //查询
-      fetchData() {
+      fetchData(current) {
+        if(current){
+          this.tablePage.current = current
+        }
         this.tableLoading = true
         queryUser(this.tableQuery, this.tablePage).then(res => {
           this.tableData = res.data.page.records
@@ -273,7 +314,7 @@
             this.temp.updated = res.data.updated
             this.tableData.splice(this.temp.idx, 1, this.temp)
             this.dialogFormVisible = false
-            this.$notify(updateSuccNotify)
+            this.$message.success("更新成功")
           })
         })
       },
@@ -282,24 +323,40 @@
       //更新用户的角色
       handleUpdateUserRoles(idx, row) {
         // 更新缓存数据
-        this. updateUserRolesData = { uid: row.uid, rids: [] }
-        // 加载所有角色，假设整个系统只允许有一个超级管理员，不显示超级管理员角色。
-        if(this.allRoles.length==0){
-          listRoles().then(res=>{
-            this.allRoles = res.data.list
-          })
+        this.updateUserRolesData = {
+          idx: idx,
+          uid: row.uid,
+          rids: row.roleList.map(role=>role.rid)
         }
-        // 加载用户已有角色。
-        findUserRoleIds(row.uid).then(res=>{
-          this.updateUserRolesData.rids = res.data.rids
-        })
         // 显示弹窗
         this.editRolesDialogVisible = true
       },
-      updateUserRoles() {
-        updateUserRoles(this.updateUserRolesData).then(res=>{
+
+      checkUpdateUserRolesData() {
+        if(this.updateUserRolesData && this.updateUserRolesData.rids && this.updateUserRolesData.rids.length ==0){
+          this.$confirm('当前没有选中任何角色，会清除该用户已有的角色, 是否继续?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            this.invokeUpdateUserRolesApi()
+          }).catch(() => {
+            this.$message("已取消编辑用户角色");
+          });
+        }else{
+          this.invokeUpdateUserRolesApi()
+        }
+      },
+
+      invokeUpdateUserRolesApi(){
+        updateUserRoles(this.updateUserRolesData).then(res => {
+          let newRoles = this.updateUserRolesData.rids.map(rid=>{
+            let rname = this.roleMap.get(rid);
+            if(rname) return {rid,rname}
+          })
+          this.tableData[this.updateUserRolesData.idx].roleList = newRoles
           this.editRolesDialogVisible = false
-          this.$notify(updateSuccNotify)
+          this.$message.success("更新成功")
         })
       },
 
@@ -312,12 +369,12 @@
             this.tableData.splice(idx, 1)
             --this.tablePage.total
             this.dialogFormVisible = false
-            this.$notify(deleteSuccNotify)
+            this.$message.success("删除成功")
           })
 
         }).catch((err) => {
           console.log(err)
-          this.$message({type: 'info',message: '已取消删除'});
+          this.$message.info("已取消删除")
         });
 
       },
@@ -340,14 +397,11 @@
             this.tableData.unshift(this.temp)
             ++this.tablePage.total
             this.dialogFormVisible = false
-            this.$notify(addSuccNotify)
+            this.$message.success("添加成功")
           })
 
         })
       },
-
-
-
 
 
     }
@@ -363,5 +417,13 @@
       font-size: 18px;
       line-height: 46px;
     }
+  }
+
+  .card-title {
+    color: #409EFF;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 300;
+    margin-bottom: 20px;
   }
 </style>

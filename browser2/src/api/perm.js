@@ -9,7 +9,7 @@ import request from '@/utils/request'
  */
 export function addPerm(data) {
   return request({
-    url: '/perm',
+    url: '/sys_perm',
     method: 'post',
     data
   })
@@ -21,7 +21,7 @@ export function addPerm(data) {
  */
 export function deletePerm(data) {
   return request({
-    url: '/perm',
+    url: '/sys_perm',
     method: 'delete',
     data
   })
@@ -34,7 +34,7 @@ export function deletePerm(data) {
  */
 export function queryPerm(queryParam,pageParam) {
   return request({
-    url: '/perm/query',
+    url: '/sys_perm/query',
     method: 'post',
     data: {
       ...queryParam,
@@ -50,7 +50,7 @@ export function queryPerm(queryParam,pageParam) {
  */
 export function updatePerm(data) {
   return request({
-    url: '/perm/info',
+    url: '/sys_perm/info',
     method: 'patch',
     data
   })
@@ -62,7 +62,7 @@ export function updatePerm(data) {
  */
 export function updatePermPerms(data) {
   return request({
-    url: '/perm/perm',
+    url: '/sys_perm/perm',
     method: 'patch',
     data
   })

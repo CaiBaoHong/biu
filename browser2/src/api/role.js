@@ -9,7 +9,7 @@ import request from '@/utils/request'
  */
 export function addRole(data) {
   return request({
-    url: '/role',
+    url: '/sys_role',
     method: 'post',
     data
   })
@@ -21,7 +21,7 @@ export function addRole(data) {
  */
 export function deleteRole(data) {
   return request({
-    url: '/role',
+    url: '/sys_role',
     method: 'delete',
     data
   })
@@ -34,7 +34,7 @@ export function deleteRole(data) {
  */
 export function queryRole(queryParam,pageParam) {
   return request({
-    url: '/role/query',
+    url: '/sys_role/query',
     method: 'post',
     data: {
       ...queryParam,
@@ -50,7 +50,7 @@ export function queryRole(queryParam,pageParam) {
  */
 export function updateRole(data) {
   return request({
-    url: '/role/info',
+    url: '/sys_role/info',
     method: 'patch',
     data
   })
@@ -62,7 +62,7 @@ export function updateRole(data) {
  */
 export function updateRolePerms(data) {
   return request({
-    url: '/role/perm',
+    url: '/sys_role/perm',
     method: 'patch',
     data
   })
@@ -74,7 +74,7 @@ export function updateRolePerms(data) {
  */
 export function listRoles() {
   return request({
-    url: '/role/list',
+    url: '/sys_role/list',
     method: 'get'
   })
 }
@@ -85,7 +85,7 @@ export function listRoles() {
  */
 export function findRolePvals(rid) {
   return request({
-    url: '/role/'+rid+'/perms',
+    url: '/sys_role/'+rid+'/perms',
     method: 'get'
   })
 }

@@ -1,7 +1,7 @@
 package com.abc.controller;
 
 import com.abc.constant.Codes;
-import com.abc.entity.User;
+import com.abc.entity.SysUser;
 import com.abc.vo.Json;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -9,8 +9,6 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.UnauthenticatedException;
 import org.apache.shiro.authz.UnauthorizedException;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,8 +16,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.UUID;
 
 /**
@@ -80,7 +76,7 @@ public class AuthController {
             //登录
             currentUser.login( new UsernamePasswordToken(uname, pwd) );
             //从session取出用户信息
-            User user = (User) currentUser.getPrincipal();
+            SysUser user = (SysUser) currentUser.getPrincipal();
             if (user==null) throw new AuthenticationException();
             log.info("user login: {}, sessionId: {}",user.getUname(),currentUser.getSession().getId());
             //返回登录用户的信息给前台，含用户的所有角色和权限
@@ -127,7 +123,7 @@ public class AuthController {
         log.info("{}, sessionId: {}",oper,sessionId);
 
         //从session取出用户信息
-        User user = (User) subject.getPrincipal();
+        SysUser user = (SysUser) subject.getPrincipal();
         if (user==null){
             //告知前台，登录失效
             return new Json(oper,false, Codes.SESSION_TIMEOUT,"登录已失效",null);

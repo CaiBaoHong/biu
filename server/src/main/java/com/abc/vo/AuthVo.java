@@ -17,6 +17,10 @@ public class AuthVo {
     public AuthVo() {
     }
 
+    public AuthVo(String val) {
+        this.val = val;
+    }
+
     public AuthVo(String name, String val) {
         this.name = name;
         this.val = val;
@@ -43,13 +47,12 @@ public class AuthVo {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AuthVo authVo = (AuthVo) o;
-        return Objects.equals(name, authVo.name) &&
-                Objects.equals(val, authVo.val);
+        return Objects.equals(val, authVo.val);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, val);
+        return Objects.hash(val);
     }
 
     @Override

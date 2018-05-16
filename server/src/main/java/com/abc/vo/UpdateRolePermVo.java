@@ -1,6 +1,6 @@
 package com.abc.vo;
 
-import com.abc.entity.Perm;
+import com.abc.entity.SysPerm;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -9,7 +9,7 @@ import java.util.List;
 public class UpdateRolePermVo implements Serializable{
 
     private String rid;
-    private List<Perm> perms = new ArrayList<>();
+    private List<SysPerm> perms = new ArrayList<>();
 
     public String getRid() {
         return rid;
@@ -19,11 +19,11 @@ public class UpdateRolePermVo implements Serializable{
         this.rid = rid;
     }
 
-    public List<Perm> getPerms() {
+    public List<SysPerm> getPerms() {
         return perms;
     }
 
-    public void setPerms(List<Perm> perms) {
+    public void setPerms(List<SysPerm> perms) {
         this.perms = perms;
     }
 }

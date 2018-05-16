@@ -1,22 +1,19 @@
 package com.abc.controller;
 
-import com.abc.entity.User;
-import com.abc.entity.UserRole;
-import com.abc.service.PermService;
-import com.abc.service.RoleService;
-import com.abc.service.UserRoleService;
-import com.abc.service.UserService;
+import com.abc.constant.Root;
+import com.abc.entity.SysUser;
+import com.abc.entity.SysUserRole;
+import com.abc.service.SysRoleService;
+import com.abc.service.SysUserRoleService;
+import com.abc.service.SysUserService;
+import com.abc.util.PageUtils;
 import com.abc.vo.Json;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.baomidou.mybatisplus.plugins.Page;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.crypto.RandomNumberGenerator;
 import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.apache.shiro.crypto.hash.Sha256Hash;
@@ -28,40 +25,36 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
  * created by CaiBaoHong at 2018/4/17 16:41<br>
  */
 @RestController
-@RequestMapping("/user")
-public class UserController {
+@RequestMapping("/sys_user")
+public class SysUserController {
 
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
+    private static final Logger log = LoggerFactory.getLogger(SysUserController.class);
 
     @Autowired
-    private UserService userService;
+    private SysUserService sysUserService;
     @Autowired
-    private RoleService roleService;
+    private SysRoleService sysRoleService;
     @Autowired
-    private PermService permService;
-    @Autowired
-    private UserRoleService userRoleService;
+    private SysUserRoleService sysUserRoleService;
 
     /**
-     * 用户注册
-     *
+     * 添加系统用户
      * @param body
      * @return
      */
     @PostMapping
     public Json add(@RequestBody String body) {
 
-        String oper = "add user";
+        String oper = "add sys user";
         log.info("{}, body: {}",oper,body);
 
-        User user = JSON.parseObject(body, User.class);
+        SysUser user = JSON.parseObject(body, SysUser.class);
 
         if (StringUtils.isEmpty(user.getUname())) {
             return Json.fail(oper, "用户帐号名不能为空");
@@ -70,7 +63,7 @@ public class UserController {
             return Json.fail(oper, "密码不能为空");
         }
 
-        User userDB = userService.selectOne(new EntityWrapper<User>().eq("uname", user.getUname()));
+        SysUser userDB = sysUserService.selectOne(new EntityWrapper<SysUser>().eq("uname", user.getUname()));
         if (userDB != null) {
             return Json.fail(oper, "用户已注册");
         }
@@ -84,12 +77,17 @@ public class UserController {
         user.setSalt(salt);
         user.setCreated(new Date());
 
-        boolean success = userService.insert(user);
+        boolean success = sysUserService.insert(user);
         return Json.result(oper, success)
                 .data("uid",user.getUid())
                 .data("created",user.getCreated());
     }
 
+    /**
+     * 删除系统用户
+     * @param body
+     * @return
+     */
     @DeleteMapping
     public Json delete(@RequestBody String body) {
 
@@ -98,19 +96,29 @@ public class UserController {
 
         JSONObject jsonObj = JSON.parseObject(body);
         String uid = jsonObj.getString("uid");
-
         if (StringUtils.isEmpty(uid)) {
             return Json.fail(oper, "无法删除用户：参数为空（用户id）");
         }
 
-        boolean success = userService.deleteById(uid);
+        //限制：不能删当前登录用户
+        SysUser user = (SysUser) SecurityUtils.getSubject().getPrincipal();
+        if (StringUtils.equals(uid,user.getUid())){
+            return Json.fail(oper, "系统限制：不能删除当前登录账号");
+        }
+
+        //检查：不能删除管理员
+        boolean containRoot = sysRoleService.checkUidContainRval(uid, Root.ROLE_VAL);
+        if (containRoot){
+            return Json.fail(oper,"不能删除管理员用户");
+        }
+
+        boolean success = sysUserService.deleteById(uid);
+        sysUserRoleService.delete(new EntityWrapper<SysUserRole>().eq("user_id",uid));
         return Json.result(oper, success);
     }
 
-
     /**
-     * 更新用户的角色
-     *
+     * 更新系统用户的角色
      * @param body
      * @return
      */
@@ -118,20 +126,52 @@ public class UserController {
     public Json updateUserRole(@RequestBody String body) {
 
         String oper = "update user's roles";
+        log.info("{}, body: {}",oper,body);
+
         JSONObject json = JSON.parseObject(body);
         final String uid = json.getString("uid");
 
-        JSONArray rids = json.getJSONArray("rids");
-        List<UserRole> list = rids.stream().map(roleId -> new UserRole(uid, (String) roleId)).collect(Collectors.toList());
+        List<String> rids = json.getJSONArray("rids").toJavaList(String.class);
 
-        boolean deleteSucc = userRoleService.delete(new EntityWrapper<UserRole>().eq("user_id", uid));
+        //检查：不能含有管理员角色
+        boolean containRoot = sysRoleService.checkRidsContainRval(rids, Root.ROLE_VAL);
+        if (containRoot){
+            return Json.fail(oper,"不能给非管理员用户赋予管理员角色");
+        }
+
+        //删除：原来绑定的角色
+        boolean deleteSucc = sysUserRoleService.delete(new EntityWrapper<SysUserRole>().eq("user_id", uid));
         if (!deleteSucc) return Json.fail(oper, "无法解除原来的用户-角色关系");
 
-        boolean addSucc = userRoleService.insertBatch(list);
-        return Json.result(oper, addSucc);
+        //更新：绑定新的角色
+        List<SysUserRole> list = rids.stream().map(roleId -> new SysUserRole(uid, roleId)).collect(Collectors.toList());
+
+        if (!rids.isEmpty()){
+            boolean addSucc = sysUserRoleService.insertBatch(list);
+            return Json.result(oper, addSucc);
+        }
+        return Json.succ(oper);
     }
 
-    @RequiresPermissions("user:info")
+    /**
+     * 查询系统用户列表
+     * @param body
+     * @return
+     */
+    @PostMapping("/query")
+    public Json query(@RequestBody String body) {
+        String oper = "query user";
+        log.info("{}, body: {}", oper, body);
+        JSONObject json = JSON.parseObject(body);
+        String nick = json.getString("nick");
+        Page<SysUser> page = sysUserService.queryUserIncludeRoles(PageUtils.getPageParam(json), nick);
+        return Json.succ(oper).data("page", page);
+    }
+
+    /**
+     * 更新系统用户的信息
+     * @return
+     */
     @GetMapping("/info")
     public Json userInfo() {
         System.out.println("get user info...");
@@ -139,45 +179,18 @@ public class UserController {
         return Json.succ("get user info", "userInfo", userInfo);
     }
 
-    @RequiresPermissions("user:query")
-    @PostMapping("/query")
-    public Json query(@RequestBody String body) {
-
-        String oper = "query user";
-        log.info("{}, body: {}", oper, body);
-
-        JSONObject json = JSON.parseObject(body);
-        String nick = json.getString("nick");
-
-        int current = json.getIntValue("current");
-        int size = json.getIntValue("size");
-        if (current == 0) current = 1;
-        if (size == 0) size = 10;
-
-        Wrapper<User> queryParams = new EntityWrapper<>();
-        queryParams.orderBy("created", false);
-        queryParams.orderBy("updated", false);
-        queryParams.setSqlSelect("uid","uname","nick","created","updated");
-        if (StringUtils.isNotBlank(nick)) {
-            queryParams.like("nick", nick);
-        }
-        Page<User> page = userService.selectPage(new Page<>(current, size), queryParams);
-        return Json.succ(oper).data("page", page);
-    }
-
     /**
-     *
+     * 更新系统用户的信息
      * @param body
      * @return
      */
-    @RequiresPermissions("user:update")
     @PatchMapping("/info")
     public Json update(@RequestBody String body) {
 
         String oper = "update user";
         log.info("{}, body: {}", oper, body);
 
-        User user = JSON.parseObject(body, User.class);
+        SysUser user = JSON.parseObject(body, SysUser.class);
 
         if (StringUtils.isNotBlank(user.getPwd())){
             //密码加密
@@ -195,8 +208,8 @@ public class UserController {
         user.setCreated(null);
         user.setUpdated(new Date());
 
-        //boolean success = userService.update(user,new EntityWrapper<User>().eq("uid",user.getUid()));
-        boolean success = userService.updateById(user);
+        //boolean success = sysUserService.update(user,new EntityWrapper<User>().eq("uid",user.getUid()));
+        boolean success = sysUserService.updateById(user);
 
         return Json.result(oper, success).data("updated",user.getUpdated());
     }
@@ -213,10 +226,8 @@ public class UserController {
         if (StringUtils.isBlank(uid)){
             return Json.fail(oper, "无法查询当前用户的角色值：参数为空（用户id）");
         }
-        List<String> rids = roleService.getRoleIdsByUserId(uid);
+        List<String> rids = sysRoleService.getRoleIdsByUserId(uid);
         return Json.succ(oper,"rids",rids);
     }
-
-
 
 }

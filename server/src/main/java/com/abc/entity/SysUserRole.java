@@ -9,15 +9,18 @@ import java.io.Serializable;
 /**
  * created by CaiBaoHong at 2018/4/17 14:55<br>
  */
-public class UserRole implements Serializable {
+@TableName("sys_user_role")
+public class SysUserRole implements Serializable {
 
+    @TableField("user_id")
     private String userId;
+    @TableField("role_id")
     private String roleId;
 
-    public UserRole() {
+    public SysUserRole() {
     }
 
-    public UserRole(String userId, String roleId) {
+    public SysUserRole(String userId, String roleId) {
         this.userId = userId;
         this.roleId = roleId;
     }

@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.abc.dao.PermMapper">
+<mapper namespace="com.abc.dao.SysPermMapper">
 
-    <select id="getPermsByUserId" resultType="Perm">
-        SELECT p.pname,p.pval FROM perm p, role_perm rp, user_role ur
+    <select id="getPermsByUserId" resultType="SysPerm">
+        SELECT p.pname,p.pval FROM sys_perm p, sys_role_perm rp, sys_user_role ur
         WHERE p.pid = rp.perm_id AND ur.role_id = rp.role_id
         AND ur.user_id = #{userId}
     </select>
 
-    <select id="getPermValsByRoleId" resultType="Perm">
-        SELECT p.pval,leaf FROM perm p, role_perm rp
+    <select id="getPermValsByRoleId" resultType="SysPerm">
+        SELECT p.pval,leaf FROM sys_perm p, sys_role_perm rp
         WHERE p.pid = rp.perm_id AND rp.role_id = #{roleId}
     </select>
 
     <insert id="batchInsertIgnore">
-        INSERT INTO perm (pid,pname,ptype,pval,leaf,created) VALUES
+        INSERT INTO sys_perm (pid,pname,ptype,pval,leaf,created) VALUES
         <foreach collection="perms" item="p" separator=",">
             (#{p.pid},#{p.pname},#{p.ptype},#{p.pval},#{p.leaf},#{p.created})
         </foreach>

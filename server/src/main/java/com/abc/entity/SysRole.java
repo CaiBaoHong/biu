@@ -11,8 +11,8 @@ import java.util.Date;
 /**
  * created by CaiBaoHong at 2018/4/17 14:55<br>
  */
-@TableName("role")
-public class Role extends Model<Role> {
+@TableName("sys_role")
+public class SysRole extends Model<SysRole> {
 
     @TableId(type = IdType.ID_WORKER_STR)
     private String rid;       // 角色id

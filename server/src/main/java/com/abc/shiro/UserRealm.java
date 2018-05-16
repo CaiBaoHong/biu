@@ -1,11 +1,10 @@
 package com.abc.shiro;
 
 
-import com.abc.entity.Perm;
-import com.abc.entity.User;
-import com.abc.service.PermService;
-import com.abc.service.RoleService;
-import com.abc.service.UserService;
+import com.abc.entity.SysUser;
+import com.abc.service.SysPermService;
+import com.abc.service.SysRoleService;
+import com.abc.service.SysUserService;
 import com.abc.vo.AuthVo;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import org.apache.shiro.authc.*;
@@ -32,11 +31,11 @@ public class UserRealm extends AuthorizingRealm {
     private static final Logger log =LoggerFactory.getLogger(UserRealm.class);
 
     @Autowired
-    private UserService userService;
+    private SysUserService userService;
     @Autowired
-    private RoleService roleService;
+    private SysRoleService roleService;
     @Autowired
-    private PermService permService;
+    private SysPermService permService;
 
     {
         //设置用于匹配密码的CredentialsMatcher
@@ -55,7 +54,7 @@ public class UserRealm extends AuthorizingRealm {
             throw new AuthorizationException("PrincipalCollection method argument cannot be null.");
         }
 
-        User user = (User) getAvailablePrincipal(principals);
+        SysUser user = (SysUser) getAvailablePrincipal(principals);
         Set<AuthVo> roles = user.getRoles();
         Set<AuthVo> perms = user.getPerms();
         log.info("获取角色权限信息: roles: {}, perms: {}",roles,perms);
@@ -76,7 +75,7 @@ public class UserRealm extends AuthorizingRealm {
             throw new AccountException("用户名不能为空");
         }
 
-        User userDB = userService.selectOne(new EntityWrapper<User>().eq("uname", username));
+        SysUser userDB = userService.selectOne(new EntityWrapper<SysUser>().eq("uname", username));
         if (userDB == null) {
             throw new UnknownAccountException("找不到用户（"+username+"）的帐号信息");
         }

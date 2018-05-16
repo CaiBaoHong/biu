@@ -11,13 +11,8 @@ import java.util.Date;
 /**
  * created by CaiBaoHong at 2018/4/17 14:55<br>
  */
-@TableName("perm")
-public class Perm extends Model<Perm> {
-
-    /** 权限类型：菜单 */
-    public static int PTYPE_MENU = 1;
-    /** 权限类型：按钮 */
-    public static int PTYPE_BUTTON = 2;
+@TableName("sys_perm")
+public class SysPerm extends Model<SysPerm> {
 
     @TableId(type = IdType.ID_WORKER_STR)
     private String pid;     // 权限id
@@ -31,22 +26,6 @@ public class Perm extends Model<Perm> {
     @Override
     protected Serializable pkVal() {
         return pid;
-    }
-
-    public static int getPtypeMenu() {
-        return PTYPE_MENU;
-    }
-
-    public static void setPtypeMenu(int ptypeMenu) {
-        PTYPE_MENU = ptypeMenu;
-    }
-
-    public static int getPtypeButton() {
-        return PTYPE_BUTTON;
-    }
-
-    public static void setPtypeButton(int ptypeButton) {
-        PTYPE_BUTTON = ptypeButton;
     }
 
     public String getPid() {
