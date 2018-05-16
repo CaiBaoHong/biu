@@ -60,10 +60,9 @@ export function updatePerm(data) {
  * 更新权限的权限
  * @param perm
  */
-export function updatePermPerms(data) {
+export function listApiPermMetadata() {
   return request({
-    url: '/sys_perm/perm',
-    method: 'patch',
-    data
+    url: '/sys_perm/meta/api',
+    method: 'get'
   })
 }

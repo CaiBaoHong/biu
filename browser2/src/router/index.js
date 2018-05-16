@@ -100,6 +100,12 @@ export const asyncRouterMap = [
           ]
         },
 
+      },
+      {
+        path: 'perm_meta_data',
+        name: 'perm_meta_data',
+        component: _import('_system/perm/meta'),
+        meta: { perm: 'sys:perm_meta', title: '权限数据', icon: 'chart', noCache: true }
       }
     ]
   },

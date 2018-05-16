@@ -1,5 +1,6 @@
 package com.abc.controller;
 
+import com.abc.annotation.PermissionRemark;
 import com.abc.entity.SysPerm;
 import com.abc.service.SysPermService;
 import com.abc.vo.Json;
@@ -13,14 +14,20 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.annotation.Annotation;
+import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * created by CaiBaoHong at 2018/4/17 16:41<br>
  */
-@RestController
+@RestController()
 @RequestMapping("/sys_perm")
 public class SysPermController {
 
@@ -76,7 +83,7 @@ public class SysPermController {
     }
 
     /**
-     * 查询角色
+     * 查询权限
      *
      * @param body
      * @return
@@ -130,6 +137,41 @@ public class SysPermController {
         perm.setUpdated(new Date());
         boolean success = permService.updateById(perm);
         return Json.result(oper, success).data("updated", perm.getUpdated());
+    }
+
+
+    @Autowired
+    private ApplicationContext context;
+
+    @GetMapping("/meta/api")
+    public Json listApiPermMetadata() {
+
+        String oper = "list api permission metadata";
+        log.info(oper);
+
+        Map<String, Object> map = context.getBeansWithAnnotation(PermissionRemark.class);
+        Collection<Object> beans = map.values();
+
+        for (Object bean : beans) {
+            Class<?> clz = bean.getClass();
+            System.out.println("class name: "+clz.getSimpleName());
+            Class<?> superclass = clz.getSuperclass();
+            System.out.println("superclass : "+superclass.getSimpleName());
+            Annotation[] annos = superclass.getAnnotations();
+            for (Annotation anno : annos) {
+                System.out.println("anno:"+ anno.annotationType().getSimpleName());
+                PermissionRemark pm = AnnotationUtils.getAnnotation(anno, PermissionRemark.class);
+                if (pm!=null){
+                    System.out.println("pm: "+pm.value());
+                }
+
+            }
+
+        }
+
+
+
+        return Json.succ(oper);
     }
 
 }
