@@ -66,3 +66,14 @@ export function listApiPermMetadata() {
     method: 'get'
   })
 }
+
+/**
+ * 列出所有菜单和按钮
+ * @param perm
+ */
+export function listMenuButtons() {
+  return request({
+    url: '/sys_perm/menu_button_list',
+    method: 'get'
+  })
+}

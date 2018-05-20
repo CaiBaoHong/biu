@@ -1,6 +1,7 @@
 package com.abc.controller;
 
 import com.abc.annotation.PermissionRemark;
+import com.abc.constant.PermType;
 import com.abc.entity.SysPerm;
 import com.abc.service.SysPermService;
 import com.abc.vo.Json;
@@ -19,10 +20,7 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.annotation.Annotation;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * created by CaiBaoHong at 2018/4/17 16:41<br>
@@ -35,6 +33,15 @@ public class SysPermController {
 
     @Autowired
     private SysPermService permService;
+
+    @GetMapping("/menu_button_list")
+    public Json listMenuButtonPermission(){
+        String oper = "list menu and button records";
+        EntityWrapper<SysPerm> params = new EntityWrapper<>();
+        params.in("ptype", new Integer[]{PermType.MENU,PermType.BUTTON});
+        List<SysPerm> list = permService.selectList(params);
+        return Json.succ(oper,"list",list);
+    }
 
     /**
      * 新增权限

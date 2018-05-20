@@ -20,12 +20,21 @@ public class SysPerm extends Model<SysPerm> {
     private Integer ptype;  // 权限类型：1.菜单；2.按钮
     private String pval;    // 权限值，shiro的权限控制表达式
     private Boolean leaf;   // 是否叶子节点
+    private String parent;  // 父节点id
     private Date created;   // 创建时间
     private Date updated;   // 修改时间
 
     @Override
     protected Serializable pkVal() {
         return pid;
+    }
+
+    public String getParent() {
+        return parent;
+    }
+
+    public void setParent(String parent) {
+        this.parent = parent;
     }
 
     public String getPid() {
