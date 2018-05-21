@@ -22,4 +22,16 @@
         pname=VALUES(pname),ptype=VALUES(ptype),pval=VALUES(pval),leaf=VALUES(leaf),updated=now();
     </insert>
 
+    <update id="updateByPermId">
+        UPDATE `sys_perm`
+        <set>
+            <if test="perm.pname != null and perm.pname!=''">pname=#{perm.pname},</if>
+            <if test="perm.ptype != null and perm.ptype!=''">ptype=#{perm.ptype},</if>
+            <if test="perm.pval != null and perm.pval!=''">pval=#{perm.pval},</if>
+            parent=#{perm.parent},
+            updated = #{perm.updated}
+        </set>
+        WHERE `pid` = #{perm.pid};
+    </update>
+
 </mapper>

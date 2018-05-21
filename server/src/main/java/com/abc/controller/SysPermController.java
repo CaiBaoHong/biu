@@ -34,11 +34,20 @@ public class SysPermController {
     @Autowired
     private SysPermService permService;
 
-    @GetMapping("/menu_button_list")
+    @GetMapping("/list/menu_button")
     public Json listMenuButtonPermission(){
-        String oper = "list menu and button records";
+        String oper = "list menu and button permission records";
         EntityWrapper<SysPerm> params = new EntityWrapper<>();
         params.in("ptype", new Integer[]{PermType.MENU,PermType.BUTTON});
+        List<SysPerm> list = permService.selectList(params);
+        return Json.succ(oper,"list",list);
+    }
+
+    @GetMapping("/list/api")
+    public Json listApiPermission(){
+        String oper = "list api permission records";
+        EntityWrapper<SysPerm> params = new EntityWrapper<>();
+        params.in("ptype", new Integer[]{PermType.API});
         List<SysPerm> list = permService.selectList(params);
         return Json.succ(oper,"list",list);
     }
@@ -142,7 +151,7 @@ public class SysPermController {
             return Json.fail(oper, "无法更新权限：参数为空（权限id）");
         }
         perm.setUpdated(new Date());
-        boolean success = permService.updateById(perm);
+        boolean success = permService.updateByPermId(perm);
         return Json.result(oper, success).data("updated", perm.getUpdated());
     }
 

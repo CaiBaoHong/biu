@@ -16,4 +16,6 @@ public interface SysPermMapper extends BaseMapper<SysPerm> {
 
     void batchInsertIgnore(@Param("perms") List<SysPerm> perms);
 
+    int updateByPermId(@Param("perm")SysPerm perm);
+
 }

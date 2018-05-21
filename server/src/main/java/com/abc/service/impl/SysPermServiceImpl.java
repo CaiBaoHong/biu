@@ -29,4 +29,10 @@ public class SysPermServiceImpl extends ServiceImpl<SysPermMapper, SysPerm> impl
     public void batchInsertIgnore(List<SysPerm> perms) {
         baseMapper.batchInsertIgnore(perms);
     }
+
+    @Override
+    public boolean updateByPermId(SysPerm perm) {
+        int updateAffect = baseMapper.updateByPermId(perm);
+        return updateAffect > 0;
+    }
 }

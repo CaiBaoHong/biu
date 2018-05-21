@@ -23,10 +23,9 @@ export const pageParamNames = ["current","pages","size","total"]
  *
  */
 export const permTypeOptions = [
-  {value: 0, label: '特殊'},
   {value: 1, label: '菜单'},
   {value: 2, label: '按钮'},
-  {value: 3, label: '测试'}
+  {value: 3, label: '接口'}
 ]
 
 /**
@@ -34,7 +33,6 @@ export const permTypeOptions = [
  * @type {Map<any, any>}
  */
 export const permTypeMap = new Map([
-  [0,'特殊'],
   [1,'菜单'],
   [2,'按钮'],
   [3,'测试']
