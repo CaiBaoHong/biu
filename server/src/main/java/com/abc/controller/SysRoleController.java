@@ -165,7 +165,6 @@ public class SysRoleController {
         //手动生成id，因为@TableId不支持批量生成
         Date now = new Date();
         vo.getPerms().stream().forEach(perm -> {
-            perm.setPid(IdWorker.getIdStr());
             perm.setCreated(now);
             perm.setUpdated(now);
         });

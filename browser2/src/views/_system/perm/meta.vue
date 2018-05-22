@@ -1,21 +1,29 @@
 <template>
   <div class="app-container">
 
-    <el-button @click="generateMenuPermissionList">
-      生成菜单权限列表
-    </el-button>
 
     <el-row :gutter="20">
 
-      <!--test test test-->
+      <!--菜单权限树-->
       <el-col :span="8">
         <el-card class="box-card">
-          <el-tree draggable ref="menuPermissionRef" :filter-node-method="filterNode" @node-drop="handleMenuButtonDrop"
-                   :data="tree" :props="treeProps" node-key="pid" default-expand-all >
+          <div slot="header"  >
+            <div class="title-box">
+              <span>菜单权限元数据</span>
+              <el-tooltip content="保存菜单权限数据" placement="top">
+                <el-button style="font-size: 25px;" type="text" @click="handleSyncMenuPermissionData"
+                           icon="el-icon-refresh" circle></el-button>
+              </el-tooltip>
+            </div>
+            <span class="tips-text">提示：菜单权限由页面路由定义，不提供任何编辑功能，只能只能将权限数据同步到数据库的操作。</span>
+          </div>
+          <el-tree draggable :data="menuPermissionTree" :props="treeProps" node-key="pval" default-expand-all >
             <span class="custom-tree-node" slot-scope="{ node, data }">
-                <span>
-                  <span class="mgl-10">{{ node.label }}</span>
-                </span>
+              <span>
+                <span class="mgl-10">{{ data.pname }}</span>
+                <span class="mgl-10">{{ data.pval }}</span>
+                <el-tag class="mgl-10" type="success" size="mini" >菜单</el-tag>
+              </span>
             </span>
           </el-tree>
         </el-card>
@@ -165,7 +173,7 @@
     name: 'PermMetaDataManage',
     data() {
       return {
-        tree:[],
+        menuPermissionTree:[],
         permType,
         filterMenuButtonText:'',
         filterApiText:'',
@@ -174,7 +182,6 @@
         mockPid: 1000,
         menuButtonList: [],
         apiList: [],
-        menuPermissionList:[],
         treeProps: {
           label: 'pname',
           children: 'children'
@@ -236,14 +243,14 @@
 
     methods: {
 
-      //过滤节点
-      filterNode(value, data) {
-        if (!value) return true;
-        return data.pname.indexOf(value) !== -1;
-      },
-
       //获取后台权限数据
       initData() {
+        //显示菜单权限树
+        this.generateMenuPermissionTree();
+
+
+
+        /**
         listAllPermissions().then(res => {
           let menuButtonPerms = res.data.list.filter(perm=>perm.ptype==permType.MENU||perm.ptype==permType.BUTTON)
           let apiPerms = res.data.list.filter(perm=>perm.ptype==permType.API)
@@ -254,7 +261,16 @@
             this.apiList.push(perm);
           })
         })
+        */
       },
+
+      //过滤节点
+      filterNode(value, data) {
+        if (!value) return true;
+        return data.pname.indexOf(value) !== -1;
+      },
+
+
 
       //用于生成权限树的方法
       findChildren(list, pid) {
@@ -448,8 +464,19 @@
         this.handleNodeDrop(permType.API,draggingNode, dropNode, dropType, event)
       },
 
-      //根据前端定义的路由表，生成菜单权限列表
-      generateMenuPermissionList(){
+
+
+
+
+
+
+
+
+
+      /**
+       * 根据前端定义的路由表，生成菜单权限列表
+       */
+      generateMenuPermissionTree(){
         //预处理
         let routeArr = asyncRouterMap.map(route=>{
           let temp = Object.assign({}, route) // copy obj
@@ -460,42 +487,16 @@
           }
           return temp
         })
-        let list = [];
-        this.filterMenuPermissionList(list,routeArr,null);
-        this.tree = this.findChildren2(list, null)
-        console.log("tree: %o",this.tree)
-
-
         //过滤路由表，得到需要进行权限控制的菜单树
-        //let menuBtnTreeWhichNeedPermissionControl =  this.filterPermControlRouter(routeArr)
+        let permissionControlRoutes =  this.filterPermControlRouter(routeArr)
         //递归形成菜单树
-        //this.menuBtnTree = this.mapToTree(menuBtnTreeWhichNeedPermissionControl)
+        this.menuPermissionTree = this.mapToMenuPermissionTree(permissionControlRoutes,null)
       },
+
       /**
-       *
-       * @param list 装载结果的容器，菜单权限列表
-       * @param routeArr 路由表
-       * @param parentPval 父级权限值
+       * 根据输入的路由表过滤出一个需要进行权限控制的路由表
+       * @param routeArr
        */
-      filterMenuPermissionList(list,routeArr,parentPval){
-        routeArr.forEach(route=>{
-          if (route.meta && route.meta.perm) {
-            if (route.children && route.children.length>0) {
-              route.children = this.filterMenuPermissionList(list,route.children,route.meta.perm)
-            }
-            list.push({
-              pname: route.meta.title,
-              pval: route.meta.perm,
-              ptype: permType.MENU,
-              parent: parentPval
-            })
-          }
-        })
-      },
-
-
-
-      //过滤出需要进行权限控制的菜单
       filterPermControlRouter(routeArr) {
         const routes = routeArr.filter(route => {
           if (route.meta && route.meta.perm) {
@@ -508,34 +509,72 @@
         })
         return routes
       },
-      mapToTree(tempRouteArr){
-        return tempRouteArr.map(route=>{
+
+
+      /**
+       * 根据输入的路由表，生成菜单权限树
+       * @param routeArr 路由表
+       * @param parentPermVal 初始的父级权限值
+       */
+      mapToMenuPermissionTree(routeArr,parentPermVal){
+        return routeArr.map(route=>{
           let obj = {};
 
-          if(route.meta){
-            //菜单
-            obj.id = route.meta.perm
-            obj.label = route.meta.title
-            obj.type = 1;// 1是菜单代码
-          }else{
-            // 按钮
-            obj.id = route.perm
-            obj.label = route.title
-            obj.type = 2;// 2是按钮代码
+          if(route.meta && route.meta.perm){
+            obj.pval = route.meta.perm
+            obj.pname = route.meta.title
+            obj.ptype = permType.MENU;
+            obj.parent = parentPermVal;
           }
 
           if(route.children){
-            //菜单
-            obj.children = this.mapToTree(route.children)
-          }else if(route.meta && route.meta.buttons){
-            //按钮
-            obj.children = this.mapToTree(route.meta.buttons)
+            obj.children = this.mapToMenuPermissionTree(route.children,obj.pval)
           }
           return obj;
         })
       },
 
+      /**
+       * 同步菜单权限数据
+       */
+      handleSyncMenuPermissionData(){
+        let menuPermissionList = []
+        this.menuPermissionTreeToList(menuPermissionList,this.menuPermissionTree)
+        console.log("menuPermissionList: %o",JSON.stringify(menuPermissionList))
+      },
 
+
+      /**
+       * 菜单权限树转换成列表形式
+       */
+      menuPermissionTreeToList(list,tree){
+        tree.forEach(perm=>{
+          let temp = Object.assign({},perm)
+          temp.children = []
+          list.push(temp)
+          if (perm.children && perm.children.length>0) {
+            this.menuPermissionTreeToList(list,perm.children)
+          }
+        })
+      },
+
+      /*
+      menuPermissionTreeToList(list,routeArr,parentPval){
+        routeArr.forEach(route=>{
+          if (route.meta && route.meta.perm) {
+            if (route.children && route.children.length>0) {
+              route.children = this.menuPermissionTreeToList(list,route.children,route.meta.perm)
+            }
+            list.push({
+              pname: route.meta.title,
+              pval: route.meta.perm,
+              ptype: permType.MENU,
+              parent: parentPval
+            })
+          }
+        })
+      },
+      */
 
 
     }

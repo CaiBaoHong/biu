@@ -76,7 +76,6 @@ public class SysPermController {
         perm.setCreated(new Date());
         boolean success = permService.insert(perm);
         return Json.result(oper, success)
-                .data("pid", perm.getPid())
                 .data("created", perm.getCreated());
     }
 
@@ -146,7 +145,7 @@ public class SysPermController {
         log.info("{}, body: {}", oper, body);
 
         SysPerm perm = JSON.parseObject(body, SysPerm.class);
-        if (StringUtils.isBlank(perm.getPid())) {
+        if (StringUtils.isBlank(perm.getPval())) {
             return Json.fail(oper, "无法更新权限：参数为空（权限id）");
         }
         perm.setUpdated(new Date());

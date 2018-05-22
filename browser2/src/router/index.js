@@ -62,43 +62,20 @@ export const asyncRouterMap = [
         path: 'user_manage',
         name: 'user_manage',
         component: _import('_system/user/index'),
-        meta: {
-          perm: 'sys:user', title: '用户管理', icon: 'chart', noCache: true,
-          buttons: [
-            {perm:'user:add',title:'添加用户'},
-            {perm:'user:edit',title:'编辑用户'},
-            {perm:'user:edit:role',title:'修改用户角色'},
-            {perm:'user:delete',title:'删除用户'}
-          ]
-        },
+        meta: { perm: 'sys:user', title: '用户管理', icon: 'chart', noCache: true }
       },
       {
         path: 'role_manage',
         name: 'role_manage',
         component: _import('_system/role/index'),
-        meta: {
-          perm: 'sys:role', title: '角色管理', icon: 'chart', noCache: true,
-          buttons: [
-            {perm:'role:add',title:'添加角色'},
-            {perm:'role:edit',title:'编辑角色'},
-            {perm:'role:edit:perm',title:'修改角色权限'},
-            {perm:'role:delete',title:'删除角色'}
-          ]
-        },
+        meta: { perm: 'sys:role', title: '角色管理', icon: 'chart', noCache: true }
 
       },
       {
         path: 'perm_manage',
         name: 'perm_manage',
         component: _import('_system/perm/index'),
-        meta: {
-          perm: 'sys:perm', title: '权限管理', icon: 'chart', noCache: true,
-          buttons: [
-            {perm:'perm:add',title:'添加权限'},
-            {perm:'perm:edit',title:'编辑权限'},
-            {perm:'perm:delete',title:'删除权限'}
-          ]
-        },
+        meta: { perm: 'sys:perm', title: '权限管理', icon: 'chart', noCache: true }
 
       },
       {

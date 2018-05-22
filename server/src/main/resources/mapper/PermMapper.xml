@@ -4,7 +4,7 @@
 
     <select id="getPermsByUserId" resultType="SysPerm">
         SELECT p.pname,p.pval FROM sys_perm p, sys_role_perm rp, sys_user_role ur
-        WHERE p.pid = rp.perm_id AND ur.role_id = rp.role_id
+        WHERE p.pval = rp.perm_val AND ur.role_id = rp.role_id
         AND ur.user_id = #{userId}
     </select>
 

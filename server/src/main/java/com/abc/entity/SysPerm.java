@@ -14,19 +14,25 @@ import java.util.Date;
 @TableName("sys_perm")
 public class SysPerm extends Model<SysPerm> {
 
-    @TableId(type = IdType.ID_WORKER_STR)
-    private String pid;     // 权限id
+    @TableId(type = IdType.INPUT)
+    private String pval;    // 权限值，shiro的权限控制表达式
+    private String parent;  // 父节点权限值
     private String pname;   // 权限名称
     private Integer ptype;  // 权限类型：1.菜单；2.按钮
-    private String pval;    // 权限值，shiro的权限控制表达式
-    private Boolean leaf;   // 是否叶子节点
-    private String parent;  // 父节点id
     private Date created;   // 创建时间
     private Date updated;   // 修改时间
 
     @Override
     protected Serializable pkVal() {
-        return pid;
+        return pval;
+    }
+
+    public String getPval() {
+        return pval;
+    }
+
+    public void setPval(String pval) {
+        this.pval = pval;
     }
 
     public String getParent() {
@@ -35,14 +41,6 @@ public class SysPerm extends Model<SysPerm> {
 
     public void setParent(String parent) {
         this.parent = parent;
-    }
-
-    public String getPid() {
-        return pid;
-    }
-
-    public void setPid(String pid) {
-        this.pid = pid;
     }
 
     public String getPname() {
@@ -61,14 +59,6 @@ public class SysPerm extends Model<SysPerm> {
         this.ptype = ptype;
     }
 
-    public String getPval() {
-        return pval;
-    }
-
-    public void setPval(String pval) {
-        this.pval = pval;
-    }
-
     public Date getCreated() {
         return created;
     }
@@ -83,13 +73,5 @@ public class SysPerm extends Model<SysPerm> {
 
     public void setUpdated(Date updated) {
         this.updated = updated;
-    }
-
-    public Boolean getLeaf() {
-        return leaf;
-    }
-
-    public void setLeaf(Boolean leaf) {
-        this.leaf = leaf;
     }
 }
