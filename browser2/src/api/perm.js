@@ -68,12 +68,12 @@ export function listApiPermMetadata() {
 }
 
 /**
- * 列出所有菜单和按钮
+ * 列出所有菜单、按钮、接口等权限
  * @param perm
  */
-export function listMenuButtonPermissions() {
+export function listAllPermissions() {
   return request({
-    url: '/sys_perm/list/menu_button',
+    url: '/sys_perm/list/all',
     method: 'get'
   })
 }

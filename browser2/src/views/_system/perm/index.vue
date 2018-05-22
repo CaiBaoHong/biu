@@ -1,6 +1,8 @@
 <template>
   <div class="app-container">
 
+
+
     <el-row>
       <el-input style="width:200px;" v-model="tableQuery.pname" placeholder="权限名"></el-input>
       <span style="margin-right: 15px;"></span>

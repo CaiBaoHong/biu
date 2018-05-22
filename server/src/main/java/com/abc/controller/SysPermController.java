@@ -34,20 +34,15 @@ public class SysPermController {
     @Autowired
     private SysPermService permService;
 
-    @GetMapping("/list/menu_button")
+    /**
+     * 列出所有类型的权限：菜单、按钮、接口
+     * @return
+     */
+    @GetMapping("/list/all")
     public Json listMenuButtonPermission(){
-        String oper = "list menu and button permission records";
+        String oper = "list menu,button,api permissions";
         EntityWrapper<SysPerm> params = new EntityWrapper<>();
-        params.in("ptype", new Integer[]{PermType.MENU,PermType.BUTTON});
-        List<SysPerm> list = permService.selectList(params);
-        return Json.succ(oper,"list",list);
-    }
-
-    @GetMapping("/list/api")
-    public Json listApiPermission(){
-        String oper = "list api permission records";
-        EntityWrapper<SysPerm> params = new EntityWrapper<>();
-        params.in("ptype", new Integer[]{PermType.API});
+        params.in("ptype", new Integer[]{PermType.MENU,PermType.BUTTON,PermType.API});
         List<SysPerm> list = permService.selectList(params);
         return Json.succ(oper,"list",list);
     }
@@ -68,12 +63,16 @@ public class SysPermController {
             return Json.fail(oper, "权限值不能为空");
         }
 
-        SysPerm permDB = permService.selectOne(new EntityWrapper<SysPerm>().eq("pval", perm.getPval()));
+        EntityWrapper<SysPerm> params = new EntityWrapper<>();
+        params.eq("pval",perm.getPval());
+        params.setSqlSelect("pname,pval");
+        SysPerm permDB = permService.selectOne(params);
+
         if (permDB != null) {
-            return Json.fail(oper, "权限值已存在：" + perm.getPval());
+            return Json.fail(oper, "权限值已存在："+permDB.getPname()+"（"+perm.getPval()+"）");
         }
 
-        //保存新用户数据
+        //保存
         perm.setCreated(new Date());
         boolean success = permService.insert(perm);
         return Json.result(oper, success)

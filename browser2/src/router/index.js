@@ -110,6 +110,7 @@ export const asyncRouterMap = [
     ]
   },
 
+  /*
   {
     path: '/permission',
     component: Layout,
@@ -138,6 +139,7 @@ export const asyncRouterMap = [
       }
     }]
   },
+  */
 
   {
     path: '/menu1',

@@ -17,25 +17,47 @@
  * */
 export const pageParamNames = ["current","pages","size","total"]
 
+export const permType = {
+  MENU: 1,
+  BUTTON: 2,
+  API: 3,
+}
 
 /**
- * 下拉选择框数据：连接类型
+ * 下拉选择框数据：权限类型
  *
  */
-export const permTypeOptions = [
-  {value: 1, label: '菜单'},
-  {value: 2, label: '按钮'},
-  {value: 3, label: '接口'}
+export const menuButtonPermissionOptions = [
+  {value: permType.MENU, label: '菜单'},
+  {value: permType.BUTTON, label: '按钮'},
 ]
 
 /**
- * 订阅消息的类型
+ * 下拉选择框数据：权限类型
+ *
+ */
+export const apiPermissionOptions = [
+  {value: permType.API, label: '接口'}
+]
+
+/**
+ * 下拉选择框数据：权限类型
+ *
+ */
+export const permTypeOptions = [
+  {value: permType.MENU, label: '菜单'},
+  {value: permType.BUTTON, label: '按钮'},
+  {value: permType.API, label: '接口'}
+]
+
+/**
+ * 权限类型
  * @type {Map<any, any>}
  */
 export const permTypeMap = new Map([
-  [1,'菜单'],
-  [2,'按钮'],
-  [3,'测试']
+  [permType.MENU,'菜单'],
+  [permType.BUTTON,'按钮'],
+  [permType.API,'测试']
 ])
 
 export const addSuccNotify = { title: '成功',message: '添加成功',type: 'success',duration: 2000}
