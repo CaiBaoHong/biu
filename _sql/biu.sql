@@ -21,21 +21,19 @@ USE `biu`;
 DROP TABLE IF EXISTS `sys_perm`;
 
 CREATE TABLE `sys_perm` (
-  `pid` varchar(25) NOT NULL COMMENT '权限id',
-  `pname` varchar(50) DEFAULT NULL COMMENT '权限名称',
-  `ptype` int(3) DEFAULT NULL COMMENT '权限类型：1.菜单 2.按钮 3.接口 4.页面',
   `pval` varchar(50) NOT NULL COMMENT '权限值，shiro的权限控制表达式',
+  `parent` varchar(25) DEFAULT NULL COMMENT '父权限id',
+  `pname` varchar(50) DEFAULT NULL COMMENT '权限名称',
+  `ptype` int(3) DEFAULT NULL COMMENT '权限类型：1.菜单 2.按钮 3.接口',
   `created` timestamp NULL DEFAULT NULL COMMENT '创建时间',
   `updated` timestamp NULL DEFAULT NULL COMMENT '修改时间',
-  `leaf` tinyint(1) DEFAULT NULL COMMENT '是否子节点',
-  `parent` varchar(25) DEFAULT NULL COMMENT '父权限id',
-  PRIMARY KEY (`pid`),
+  PRIMARY KEY (`pval`),
   UNIQUE KEY `pval` (`pval`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Data for the table `sys_perm` */
 
-insert  into `sys_perm`(`pid`,`pname`,`ptype`,`pval`,`created`,`updated`,`leaf`,`parent`) values ('986901751202504706','编辑网页',4,'html:edit','2018-04-19 17:38:08',NULL,NULL,NULL),('986901927438770178','控制硬件',4,'hardware:control','2018-04-19 17:38:50',NULL,NULL,NULL),('986902011056414721','Maven构建',4,'mvn:install','2018-04-19 17:39:10',NULL,NULL,NULL),('986902101733072897','Gradle构建',4,'gradle:build','2018-04-19 17:39:31',NULL,NULL,NULL),('986902284776693761','服务端开发',4,'server:develop','2018-04-19 17:40:15',NULL,NULL,NULL),('986902613505269762','小米售后',4,'mi:service','2018-04-19 17:41:33',NULL,NULL,NULL),('986902613505888888','所有权限',0,'*','2018-04-19 18:14:12',NULL,NULL,NULL),('988593652938973185','菜单1',1,'menu:1','2018-04-24 09:41:08',NULL,NULL,NULL),('988593707624308737','菜单2',1,'menu:2','2018-04-24 09:41:22',NULL,NULL,NULL),('988593733205368833','菜单3',1,'menu:3','2018-04-24 09:41:28',NULL,NULL,NULL),('988596886235652098','菜单4',1,'menu:4','2018-04-24 09:54:00',NULL,NULL,NULL),('988629762511609857','菜单3-1',1,'menu:3:1','2018-04-24 12:04:38',NULL,NULL,'988593733205368833'),('988629812436410369','菜单3-2',1,'menu:3:2','2018-04-24 12:04:50',NULL,NULL,'988593733205368833'),('988629841578434561','菜单3-3',1,'menu:3:3','2018-04-24 12:04:57',NULL,NULL,'988593733205368833'),('988629870254123598','菜单4-2',1,'menu:4:2',NULL,NULL,NULL,'988596886235652098'),('988629870254891009','菜单4-1',1,'menu:4:1','2018-04-24 12:05:04',NULL,NULL,'988596886235652098'),('990301234590340102','修改角色权限',2,'role:perm:update',NULL,NULL,NULL,'990308202190340099'),('990307790318075905','用户管理',1,'system:user_manage',NULL,'2018-04-29 03:56:28',0,'990307790318075909'),('990307790318075906','新增用户',2,'user:add',NULL,'2018-04-29 03:56:28',1,'990307790318075905'),('990307790318075907','删除用户',2,'user:delete',NULL,NULL,NULL,'990307790318075905'),('990307790318075908','更新用户',2,'user:update',NULL,'2018-04-29 03:44:31',1,'990307790318075905'),('990307790318075909','系统',1,'system',NULL,'2018-04-29 03:56:28',0,NULL),('990307791234075908','修改用户角色',2,'user:role:update',NULL,NULL,NULL,'990307790318075905'),('990308202190340099','角色管理',1,'system:role_manage',NULL,'2018-04-29 03:56:28',0,'990307790318075909'),('990308202190340100','新增角色',2,'role:add',NULL,NULL,NULL,'990308202190340099'),('990308202190340101','删除权限',2,'role:delete',NULL,'2018-04-29 03:56:28',1,'990308202190340099'),('990308202190340102','更新权限',2,'role:update',NULL,NULL,NULL,'990308202190340099'),('990308202190340103','权限管理',1,'system:perm_manage',NULL,NULL,NULL,'990307790318075909'),('990308202190340104','新增权限',2,'perm:add',NULL,NULL,NULL,'990308202190340103'),('990308202190340105','删除权限',2,'perm:delete',NULL,NULL,NULL,'990308202190340103'),('990308202190340106','更新权限',2,'perm:update',NULL,NULL,NULL,'990308202190340103'),('990308202190340108','菜单4-1-a',1,'menu:4:1:a',NULL,NULL,NULL,'988629870254891009'),('990308202190340109','菜单4-1-b',1,'menu:4:1:b',NULL,NULL,NULL,'988629870254891009'),('990308202190340110','菜单4-1-c',1,'menu:4:1:c',NULL,NULL,NULL,'988629870254891009');
+insert  into `sys_perm`(`pval`,`parent`,`pname`,`ptype`,`created`,`updated`) values ('*',NULL,'所有权限',0,'2018-04-19 18:14:12','2018-05-23 09:18:57'),('api:sys:user',NULL,'用户管理模块',3,'2018-05-23 09:31:09',NULL),('api:sys:user:add','api:sys:user','添加用户接口',3,'2018-05-23 09:31:11',NULL),('api:sys:user:del','api:sys:user','删除用户接口',3,'2018-05-23 09:31:13',NULL),('menu1',NULL,'菜单1',1,NULL,NULL),('menu2',NULL,'菜单2',1,NULL,NULL),('menu3',NULL,'菜单3',1,NULL,NULL),('menu3:1','menu3','菜单3-1',1,NULL,NULL),('menu3:2','menu3','菜单3-2',1,NULL,NULL),('menu3:3','menu3','菜单3-3',1,NULL,NULL),('menu4',NULL,'菜单4',1,NULL,NULL),('menu4:1','menu4','菜单4-1',1,NULL,NULL),('menu4:1:a','menu4:1','菜单4-1-a',1,NULL,NULL),('menu4:1:b','menu4:1','菜单4-1-b',1,NULL,NULL),('menu4:1:c','menu4:1','菜单4-1-c',1,NULL,NULL),('menu4:2','menu4','菜单4-2',1,NULL,NULL),('sys',NULL,'系统',1,'2018-05-23 09:27:14',NULL),('sys:perm','sys','权限管理',1,NULL,NULL),('sys:perm_meta','sys','权限数据',1,NULL,NULL),('sys:role','sys','角色管理',1,NULL,NULL),('sys:user','sys','用户管理',1,'2018-05-23 09:27:16',NULL),('sys:user:add','sys:user','添加用户',2,'2018-05-23 09:31:14',NULL),('sys:user:del','sys:user','删除用户',2,'2018-05-23 09:31:16',NULL);
 
 /*Table structure for table `sys_role` */
 
@@ -54,7 +52,7 @@ CREATE TABLE `sys_role` (
 
 /*Data for the table `sys_role` */
 
-insert  into `sys_role`(`rid`,`rname`,`rdesc`,`rval`,`created`,`updated`) values ('986899638422528002','JavaScript程序员','能写前端','js','2018-04-19 17:29:44',NULL),('986900014999724033','Java程序员','能写后台，给前台提供数据','java','2018-04-19 17:31:14',NULL),('986900390847111169','C++程序员','能控制硬件','cpp','2018-04-19 17:32:44',NULL),('986900849410367490','超级管理员','具有本系统中最高权限','root','2018-04-19 17:34:33',NULL),('986900849410368549','小米CEO','小米的拼命三郎','mi','2018-04-19 17:49:32',NULL),('986925949410368893','编辑','小编','editor','2018-04-24 09:27:45',NULL);
+insert  into `sys_role`(`rid`,`rname`,`rdesc`,`rval`,`created`,`updated`) values ('999999888888777777','超级管理员','具有本系统中最高权限','root','2018-04-19 17:34:33',NULL);
 
 /*Table structure for table `sys_role_perm` */
 
@@ -62,13 +60,13 @@ DROP TABLE IF EXISTS `sys_role_perm`;
 
 CREATE TABLE `sys_role_perm` (
   `role_id` varchar(25) NOT NULL,
-  `perm_id` varchar(25) NOT NULL,
-  PRIMARY KEY (`role_id`,`perm_id`)
+  `perm_val` varchar(50) NOT NULL,
+  PRIMARY KEY (`role_id`,`perm_val`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Data for the table `sys_role_perm` */
 
-insert  into `sys_role_perm`(`role_id`,`perm_id`) values ('986899638422528002','986901751202504706'),('986900014999724033','986902011056414721'),('986900014999724033','986902101733072897'),('986900014999724033','986902284776693761'),('986900390847111169','990307790318075909'),('986900390847111169','990308202190340103'),('986900390847111169','990308202190340104'),('986900390847111169','990308202190340105'),('986900390847111169','990308202190340106'),('986900849410367490','986902613505888888'),('986900849410367490','988593652938973185'),('986900849410367490','988593707624308737'),('986900849410367490','988593733205368833'),('986900849410367490','988629762511609857'),('986900849410367490','988629812436410369'),('986900849410367490','988629841578434561'),('986900849410367490','988629870254891009'),('986900849410368549','986902613505269762'),('986925949410368893','990307790318075905'),('986925949410368893','990307790318075906'),('986925949410368893','990307790318075909'),('986925949410368893','990308202190340099'),('986925949410368893','990308202190340101');
+insert  into `sys_role_perm`(`role_id`,`perm_val`) values ('999999888888777777','*');
 
 /*Table structure for table `sys_user` */
 
@@ -89,7 +87,7 @@ CREATE TABLE `sys_user` (
 
 /*Data for the table `sys_user` */
 
-insert  into `sys_user`(`uid`,`uname`,`nick`,`pwd`,`salt`,`lock`,`created`,`updated`) values ('986177923098808322','admin','雷军','J/ms7qTJtqmysekuY8/v1TAS+VKqXdH5sB7ulXZOWho=','wxKYXuTPST5SG0jMQzVPsg==',NULL,'2018-04-17 17:41:53','2018-04-19 17:08:15'),('986417752352923650','ma','马化腾','J/ms7qTJtqmysekuY8/v1TAS+VKqXdH5sB7ulXZOWho=','wxKYXuTPST5SG0jMQzVPsg==',NULL,'2018-04-18 09:34:53','2018-04-25 00:11:31'),('986898575929827329','editor','菜鸟','7ujptuUyNUJqABXa7MGc8gd6AsjclUw7CZbh3v0fPjU=','sNIJ758vFuX6BKKU6bEJ3Q==',NULL,'2018-04-19 17:25:31','2018-04-25 00:11:26'),('988816358184984577','hello','hello1','Q7oVyGSZn4LCIZhVQmapdldJu+v3ho3eK+0pdpGOf78=','DqvWmCjWStnEjU1TmsUwnQ==',NULL,'2018-04-25 00:26:06','2018-04-25 00:27:20'),('988816595007971330','world','world2','yFcdxt89P4gFqguXLRGgXgzLhNLmycZbk+Cv2TcX7Tw=','LB5vcn18mQFa9knkL5aX/A==',NULL,'2018-04-25 00:27:02','2018-04-25 00:27:25');
+insert  into `sys_user`(`uid`,`uname`,`nick`,`pwd`,`salt`,`lock`,`created`,`updated`) values ('986177923098808322','admin','刘备','J/ms7qTJtqmysekuY8/v1TAS+VKqXdH5sB7ulXZOWho=','wxKYXuTPST5SG0jMQzVPsg==',0,'2018-04-17 17:41:53','2018-04-19 17:08:15'),('986417752352923650','guanyu','关羽','J/ms7qTJtqmysekuY8/v1TAS+VKqXdH5sB7ulXZOWho=','wxKYXuTPST5SG0jMQzVPsg==',0,'2018-04-18 09:34:53','2018-04-25 00:11:31'),('986898575929827329','zhangfei','张飞','J/ms7qTJtqmysekuY8/v1TAS+VKqXdH5sB7ulXZOWho=','wxKYXuTPST5SG0jMQzVPsg==',0,'2018-04-19 17:25:31','2018-04-25 00:11:26');
 
 /*Table structure for table `sys_user_role` */
 
@@ -103,7 +101,7 @@ CREATE TABLE `sys_user_role` (
 
 /*Data for the table `sys_user_role` */
 
-insert  into `sys_user_role`(`user_id`,`role_id`) values ('986177923098808322','986900014999724033'),('986177923098808322','986900849410367490'),('986177923098808322','986900849410368549'),('986898575929827329','986925949410368893'),('988816358184984577','986900014999724033'),('988816358184984577','986900390847111169'),('988816595007971330','986899638422528002');
+insert  into `sys_user_role`(`user_id`,`role_id`) values ('986177923098808322','999999888888777777');
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
