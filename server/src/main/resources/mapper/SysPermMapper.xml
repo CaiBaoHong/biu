@@ -14,12 +14,10 @@
     </select>
 
     <insert id="batchInsertIgnore">
-        INSERT INTO sys_perm (pid,pname,ptype,pval,leaf,created) VALUES
+        INSERT IGNORE INTO sys_perm (pval,parent,pname,ptype,created) VALUES
         <foreach collection="perms" item="p" separator=",">
-            (#{p.pid},#{p.pname},#{p.ptype},#{p.pval},#{p.leaf},#{p.created})
+            (#{p.pval},#{p.parent},#{p.pname},#{p.ptype},#{p.created})
         </foreach>
-        ON DUPLICATE KEY UPDATE
-        pname=VALUES(pname),ptype=VALUES(ptype),pval=VALUES(pval),leaf=VALUES(leaf),updated=now();
     </insert>
 
     <update id="updateByPermId">

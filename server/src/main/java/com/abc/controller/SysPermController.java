@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * created by CaiBaoHong at 2018/4/17 16:41<br>
@@ -44,8 +45,23 @@ public class SysPermController {
         EntityWrapper<SysPerm> params = new EntityWrapper<>();
         params.in("ptype", new Integer[]{PermType.MENU,PermType.BUTTON,PermType.API});
         List<SysPerm> list = permService.selectList(params);
-        return Json.succ(oper,"list",list);
+        Map<Integer, List<SysPerm>> permMap = list.stream().collect(Collectors.groupingBy(SysPerm::getPtype));
+        return Json.succ(oper,"permMap",permMap);
     }
+
+    /**
+     * 批量保存权限数据
+     * @return
+     */
+    @PostMapping("/batch_save")
+    public Json batchSavePerms(@RequestBody String body){
+        String oper = "batch save perm data";
+        log.info("{}, body: {}", oper, body);
+        List<SysPerm> notSyncedPerms = JSON.parseArray(body, SysPerm.class);
+        permService.batchInsertIgnore(notSyncedPerms);
+        return Json.succ(oper);
+    }
+
 
     /**
      * 新增权限

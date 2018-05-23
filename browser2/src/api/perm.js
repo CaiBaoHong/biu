@@ -16,6 +16,18 @@ export function addPerm(data) {
 }
 
 /**
+ * 批量添加权限
+ * @param data
+ */
+export function batchSavePerms(permArr) {
+  return request({
+    url: '/sys_perm/batch_save',
+    method: 'post',
+    data: permArr
+  })
+}
+
+/**
  * 删除权限
  * @param data
  */
