@@ -31,12 +31,12 @@
       </el-col>
 
 
-      <!--左侧菜单按钮权限树-->
+      <!--按钮权限树-->
       <el-col :span="8">
         <el-card class="box-card">
           <div slot="header">
             <div class="title-box">
-              <span>菜单、按钮权限元数据</span>
+              <span>按钮权限元数据</span>
               <el-tooltip content="添加顶级菜单" placement="top">
                 <el-button style="font-size: 25px;" type="text" @click="handleAddTopNode(permType.MENU)"
                            icon="el-icon-circle-plus-outline" circle></el-button>
@@ -47,10 +47,10 @@
           <el-input class="mgb-15" placeholder="输入关键字进行过滤" v-model="filterMenuButtonText">
           </el-input>
           <el-tree draggable ref="menuButtonTreeRef" :filter-node-method="filterNode" @node-drop="handleMenuButtonDrop"
-                   :data="menuButtonTree" :props="treeProps" node-key="pid" default-expand-all>
+                   :data="buttonPermissionTree" :props="treeProps" node-key="pid" default-expand-all>
             <span class="custom-tree-node" slot-scope="{ node, data }">
                 <span>
-                  <span class="mgl-10">{{ node.label }}</span>
+                  <span class="mgl-10">{{ data.pname }}</span>
                   <el-tag v-if="data.ptype==1" type="success" size="mini">菜单</el-tag>
                   <el-tag v-else-if="data.ptype==2" type="warning" size="mini"><i class="el-icon-rank"></i>按钮</el-tag>
                   <i class="el-icon-rank mgl-10"></i>
@@ -190,8 +190,12 @@
         menuPermValSet: new Set(),
         buttonPermList: [],
         apiPermList: [],
+        btnPermMap:{},//按parent字段分组的map
 
-        menuPermissionTree: [],
+        menuPermissionTree: [],//菜单权限树
+        buttonPermissionTree: [],//菜单权限树
+
+
         permType,
         filterMenuButtonText: '',
         filterApiText: '',
@@ -264,13 +268,17 @@
       //获取后台权限数据
       initData() {
         listAllPermissions().then(res => {
+          this.btnPermMap = res.data.btnPermMap
           this.menuPermList = res.data.permMap[permType.MENU]
           this.buttonPermList = res.data.permMap[permType.BUTTON]
           this.apiPermList = res.data.permMap[permType.API]
           this.menuPermValSet = new Set(this.menuPermList.map(p=>p.pval))
-          console.log(this.menuPermValSet)
+
+
           //显示菜单权限树
           this.generateMenuPermissionTree()
+          //显示按钮权限树
+          this.generateButtonPermissionTree()
         })
       },
 
@@ -471,6 +479,44 @@
       },
       handleApiDrop(draggingNode, dropNode, dropType, event) {
         this.handleNodeDrop(permType.API, draggingNode, dropNode, dropType, event)
+      },
+
+      /**
+       * 根据菜单树，生成按钮权限树
+       */
+      generateButtonPermissionTree() {
+        console.log("this.btnPermMap: %o",JSON.stringify(this.btnPermMap))
+        console.log("==this.menuPermissionTree: "+JSON.stringify(this.menuPermissionTree))
+        this.buttonPermissionTree = this.mapToButtonPermissionTree(this.menuPermissionTree)
+        console.log("this.buttonPermissionTree: %o",JSON.stringify(this.buttonPermissionTree))
+      },
+
+      /**
+       * 根据菜单树，生成按钮权限树
+       * @param menuPermissionTree 菜单树
+       */
+      mapToButtonPermissionTree(menuPermissionTree) {
+        return menuPermissionTree.map(perm => {
+
+          if(perm){
+            if(!perm.children){
+              perm.children = []
+            }
+            if(perm.ptype==permType.MENU){
+              let btnPerms = this.btnPermMap[perm.pval]
+              if(btnPerms){
+                btnPerms.forEach(p=>{
+                  perm.children.push(p)
+                })
+              }
+            }
+            if(perm.children&&perm.children.length>0){
+              this.mapToButtonPermissionTree(perm.children)
+            }
+          }
+          return perm;
+
+        })
       },
 
 

@@ -46,7 +46,9 @@ public class SysPermController {
         params.in("ptype", new Integer[]{PermType.MENU,PermType.BUTTON,PermType.API});
         List<SysPerm> list = permService.selectList(params);
         Map<Integer, List<SysPerm>> permMap = list.stream().collect(Collectors.groupingBy(SysPerm::getPtype));
-        return Json.succ(oper,"permMap",permMap);
+        List<SysPerm> buttonPermList = permMap.get(PermType.BUTTON);
+        Map<String, List<SysPerm>> buttonsGroupedByParent = buttonPermList.stream().collect(Collectors.groupingBy(SysPerm::getParent));
+        return Json.succ(oper,"permMap",permMap).data("btnPermMap",buttonsGroupedByParent);
     }
 
     /**
