@@ -6,35 +6,24 @@
 
     <div class="right-menu">
       <error-log class="errLog-container right-menu-item"></error-log>
-
-      <el-tooltip effect="dark" :content="$t('navbar.screenfull')" placement="bottom">
-        <screenfull class="screenfull right-menu-item"></screenfull>
-      </el-tooltip>
-
-      <lang-select class="international right-menu-item"></lang-select>
-
-      <el-tooltip effect="dark" :content="$t('navbar.theme')" placement="bottom">
-        <theme-picker class="theme-switch right-menu-item"></theme-picker>
-      </el-tooltip>
-
+      <div style="display: inline-block;">
+        <span>帐号：</span><el-tag style="margin-right: 20px;">{{name}}</el-tag>
+        <span>角色：</span>
+        <el-tag style="margin-right: 5px;" type="success" v-for="r in roles" :key="r.val">{{r.name}}</el-tag>
+      </div>
       <el-dropdown class="avatar-container right-menu-item" trigger="click">
         <div class="avatar-wrapper">
-          <img class="user-avatar" :src="avatar+'?imageView2/1/w/80/h/80'">
+          <img class="user-avatar" :src="avatar">
           <i class="el-icon-caret-bottom"></i>
         </div>
         <el-dropdown-menu slot="dropdown">
           <router-link to="/">
             <el-dropdown-item>
-              {{$t('navbar.dashboard')}}
+              首页
             </el-dropdown-item>
           </router-link>
-          <a target='_blank' href="https://github.com/PanJiaChen/vue-element-admin/">
-            <el-dropdown-item>
-              {{$t('navbar.github')}}
-            </el-dropdown-item>
-          </a>
           <el-dropdown-item divided>
-            <span @click="logout" style="display:block;">{{$t('navbar.logOut')}}</span>
+            <span @click="logout" style="display:block;">退出</span>
           </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
@@ -64,7 +53,8 @@ export default {
     ...mapGetters([
       'sidebar',
       'name',
-      'avatar'
+      'avatar',
+      'roles',
     ])
   },
   methods: {

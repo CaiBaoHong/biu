@@ -1,6 +1,6 @@
 package com.abc.controller;
 
-import com.abc.annotation.PermissionRemark;
+import com.abc.annotation.PermInfo;
 import com.abc.constant.PermType;
 import com.abc.entity.SysPerm;
 import com.abc.service.SysPermService;
@@ -14,9 +14,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.annotation.AnnotationBeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.stereotype.Controller;
+import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.annotation.Annotation;
@@ -28,6 +31,7 @@ import java.util.stream.Collectors;
  */
 @RestController()
 @RequestMapping("/sys_perm")
+@PermInfo(value = "权限模块",pval = "api:sys:perm")
 public class SysPermController {
 
     private static final Logger log = LoggerFactory.getLogger(SysPermController.class);
@@ -97,20 +101,21 @@ public class SysPermController {
                 .data("created", perm.getCreated());
     }
 
+    /**
+     * 根据权限值删除权限
+     * @param body
+     * @return
+     */
     @DeleteMapping
     public Json delete(@RequestBody String body) {
-
         String oper = "delete permission";
         log.info("{}, body: {}", oper, body);
-
         JSONObject jsonObj = JSON.parseObject(body);
-        String pid = jsonObj.getString("pid");
-
-        if (StringUtils.isBlank(pid)) {
-            return Json.fail(oper, "无法删除权限：参数为空（权限id）");
+        String pval = jsonObj.getString("pval");
+        if (StringUtils.isBlank(pval)) {
+            return Json.fail(oper, "无法删除权限：参数为空（权限值）");
         }
-
-        boolean success = permService.deleteById(pid);
+        boolean success = permService.deleteById(pval);
         return Json.result(oper, success);
     }
 
@@ -149,9 +154,9 @@ public class SysPermController {
         return Json.succ(oper).data("page", page);
     }
 
+
     /**
-     * 更新角色
-     *
+     * 更新，只允许更新权限名称，不允许更新权限值
      * @param body
      * @return
      */
@@ -164,10 +169,14 @@ public class SysPermController {
 
         SysPerm perm = JSON.parseObject(body, SysPerm.class);
         if (StringUtils.isBlank(perm.getPval())) {
-            return Json.fail(oper, "无法更新权限：参数为空（权限id）");
+            return Json.fail(oper, "无法更新权限：参数为空（权限值）");
         }
-        perm.setUpdated(new Date());
-        boolean success = permService.updateByPermId(perm);
+
+        SysPerm updateData = new SysPerm();
+        updateData.setPval(perm.getPval());
+        updateData.setPname(perm.getPname());
+        updateData.setUpdated(new Date());
+        boolean success = permService.updateById(updateData);
         return Json.result(oper, success).data("updated", perm.getUpdated());
     }
 
@@ -181,9 +190,17 @@ public class SysPermController {
         String oper = "list api permission metadata";
         log.info(oper);
 
-        Map<String, Object> map = context.getBeansWithAnnotation(PermissionRemark.class);
+        String basicPackage = ClassUtils.getPackageName(this.getClass());
+        Map<String, Object> map = context.getBeansWithAnnotation(Controller.class);
         Collection<Object> beans = map.values();
+        beans.stream().filter( b-> StringUtils.equals(basicPackage,ClassUtils.getPackageName(b.getClass())))
+                .forEach(bean->{
+                    Class<?> clz = bean.getClass();
+                    SysPerm modulePerm = getModulePerm(clz);
+                    System.out.println("模块权限："+modulePerm.getPname()+", "+modulePerm.getPval());
+                });
 
+        /*
         for (Object bean : beans) {
             Class<?> clz = bean.getClass();
             System.out.println("class name: "+clz.getSimpleName());
@@ -192,7 +209,7 @@ public class SysPermController {
             Annotation[] annos = superclass.getAnnotations();
             for (Annotation anno : annos) {
                 System.out.println("anno:"+ anno.annotationType().getSimpleName());
-                PermissionRemark pm = AnnotationUtils.getAnnotation(anno, PermissionRemark.class);
+                PermInfo pm = AnnotationUtils.getAnnotation(anno, PermInfo.class);
                 if (pm!=null){
                     System.out.println("pm: "+pm.value());
                 }
@@ -200,10 +217,46 @@ public class SysPermController {
             }
 
         }
-
-
+        */
 
         return Json.succ(oper);
     }
+
+    public SysPerm getModulePerm(Class<?> clz){
+        SysPerm perm = new SysPerm();
+        //首选值
+        PermInfo piAnno = AnnotationUtils.getAnnotation(clz, PermInfo.class);
+        if (piAnno==null){
+            piAnno = AnnotationUtils.getAnnotation(clz.getSuperclass(), PermInfo.class);
+        }
+        String pnamePrimary = null;
+        String pvalPrimary = null;
+        if (piAnno!=null && piAnno.value()!=null){
+            pnamePrimary = piAnno.value();
+            pvalPrimary = piAnno.pval();
+        }
+        //备选值
+        String pnameSub = ClassUtils.getShortName(clz);
+        RequestMapping rmAnno = AnnotationUtils.getAnnotation(clz, RequestMapping.class);
+        if(rmAnno==null){
+            rmAnno = AnnotationUtils.getAnnotation(clz.getSuperclass(), RequestMapping.class);
+        }
+        String pvalSub = rmAnno.value()[0];
+        //赋值
+        if (StringUtils.isNotBlank(pnamePrimary)){
+            perm.setPname(pnamePrimary);
+        }else{
+            perm.setPname(pnameSub);
+        }
+        if (StringUtils.isNotBlank(pvalPrimary)){
+            perm.setPval(pvalPrimary);
+        }else{
+            perm.setPval(pvalSub);
+        }
+        perm.setPtype(PermType.API);
+        return perm;
+    }
+
+
 
 }

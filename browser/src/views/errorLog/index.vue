@@ -2,12 +2,11 @@
   <div class="errPage-container">
     <errorA></errorA>
     <errorB></errorB>
-    <!-- $t is vue-i18n global function to translate lang -->
-    <h3>{{$t('errorLog.tips')}}</h3>
+    <h3>tips</h3>
     <code>
-      {{$t('errorLog.description')}}
+      description
       <a target="_blank" class="link-type" href="https://panjiachen.github.io/vue-element-admin-site/#/error?id=%e4%bb%a3%e7%a0%81">
-        {{$t('errorLog.documentation')}}
+        documentation
       </a>
     </code>
     <a href="#">

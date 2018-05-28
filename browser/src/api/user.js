@@ -5,7 +5,7 @@ import request from '@/utils/request'
 
 export function queryUser(queryParam,pageParam) {
   return request({
-    url: '/user/query',
+    url: '/sys_user/query',
     method: 'post',
     data: {
       ...queryParam,
@@ -17,7 +17,7 @@ export function queryUser(queryParam,pageParam) {
 
 export function updateUser(data) {
   return request({
-    url: '/user/info',
+    url: '/sys_user/info',
     method: 'patch',
     data
   })
@@ -25,7 +25,7 @@ export function updateUser(data) {
 
 export function addUser(data) {
   return request({
-    url: '/user',
+    url: '/sys_user',
     method: 'post',
     data
   })
@@ -33,7 +33,7 @@ export function addUser(data) {
 
 export function deleteUser(data) {
   return request({
-    url: '/user',
+    url: '/sys_user',
     method: 'delete',
     data
   })
@@ -41,7 +41,7 @@ export function deleteUser(data) {
 
 export function findUserRoleIds(uid) {
   return request({
-    url: '/user/'+uid+'/roles',
+    url: '/sys_user/'+uid+'/roles',
     method: 'get'
   })
 }
@@ -52,7 +52,7 @@ export function findUserRoleIds(uid) {
  */
 export function updateUserRoles(data) {
   return request({
-    url: '/user/role',
+    url: '/sys_user/role',
     method: 'patch',
     data
   })

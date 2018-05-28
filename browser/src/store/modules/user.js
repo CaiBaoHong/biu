@@ -1,6 +1,6 @@
 import { loginByUsername, logout, getUserInfo } from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
-import avatorImg from '@/assets/avator.jpg'
+import avatorImg from '../../../static/image/avator.gif'
 
 const user = {
   state: {
@@ -9,10 +9,11 @@ const user = {
     code: '',
     token: getToken(),
     name: '',
+    nick: '',
     avatar: avatorImg,
     introduction: '',
     roles: [],
-    perms: new Set(),
+    perms: [],
     setting: {
       articlePlatform: []
     }
@@ -37,6 +38,9 @@ const user = {
     SET_NAME: (state, name) => {
       state.name = name
     },
+    SET_NICK: (state, nick) => {
+      state.nick = nick
+    },
     SET_AVATAR: (state, avatar) => {
       state.avatar = avatar
     },
@@ -44,14 +48,7 @@ const user = {
       state.roles = roles
     },
     SET_PERMS: (state, perms) => {
-      state.perms = new Set(perms)
-    },
-    ADD_PERM: (state, perm) => {
-      state.perms = new Set([...state.perms,perm])
-    },
-    DEL_PERM: (state, perm) => {
-      state.perms.delete(perm)
-      state.perms = new Set([...state.perms])
+      state.perms = perms
     }
   },
 
@@ -60,12 +57,12 @@ const user = {
     LoginByUsername({ commit }, userInfo) {
       const username = userInfo.username.trim()
       return new Promise((resolve, reject) => {
-        loginByUsername(username, userInfo.password).then(res => {
-          commit('SET_TOKEN', res.data.token)
-          setToken(res.data.token)
+        loginByUsername(username, userInfo.password).then(response => {
+          const data = response.data
+          commit('SET_TOKEN', data.token)
+          setToken(response.data.token)
           resolve()
         }).catch(error => {
-          console.log('loginByUsername fail: %o',error)
           reject(error)
         })
       })
@@ -75,14 +72,15 @@ const user = {
     GetUserInfo({ commit, state }) {
       return new Promise((resolve, reject) => {
         getUserInfo(state.token).then(res => {
-          if (!res) { // 由于mockjs 不支持自定义状态码只能这样hack
-            reject('error')
-          }
+
+          if (!res) reject('res is null');
+          if (!res.data) reject('res.data is null');
+          if (!res.data.roles) reject('res.data.roles is null');
+          if (!res.data.perms) reject('res.data.perms is null');
           commit('SET_ROLES', res.data.roles)
           commit('SET_PERMS', res.data.perms)
+          commit('SET_NICK', res.data.nick)
           commit('SET_NAME', res.data.name)
-          // commit('SET_AVATAR', data.avatar)
-          //commit('SET_INTRODUCTION', res.data.introduction)
           resolve(res)
         }).catch(error => {
           reject(error)
@@ -110,7 +108,6 @@ const user = {
         logout(state.token).then(() => {
           commit('SET_TOKEN', '')
           commit('SET_ROLES', [])
-          commit('SET_ROLES', [])
           removeToken()
           resolve()
         }).catch(error => {
@@ -133,30 +130,16 @@ const user = {
       return new Promise(resolve => {
         commit('SET_TOKEN', role)
         setToken(role)
-        getUserInfo(role).then(res => {
-          commit('SET_ROLES', res.data.roles)
-          commit('SET_NAME', res.data.name)
-          //commit('SET_AVATAR', res.data.avatar)
-          commit('SET_INTRODUCTION', res.data.introduction)
+        getUserInfo(role).then(response => {
+          const data = response.data
+          commit('SET_ROLES', data.roles)
+          commit('SET_NAME', data.name)
+          commit('SET_AVATAR', data.avatar)
+          commit('SET_INTRODUCTION', data.introduction)
           resolve()
         })
       })
-    },
-
-    // 动态修改权限
-    addPerm({ commit }, perm) {
-      return new Promise(resolve => {
-        commit('ADD_PERM', perm)
-        resolve()
-      })
-    },
-    deletePerm({ commit }, perm) {
-      return new Promise(resolve => {
-        commit('DEL_PERM', perm)
-        resolve()
-      })
-    },
-
+    }
   }
 }
 

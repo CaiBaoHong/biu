@@ -33,3 +33,4 @@ export function testUserInfo() {
     method: 'get'
   })
 }
+

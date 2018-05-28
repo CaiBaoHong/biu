@@ -3,13 +3,13 @@
     <el-card class="box-card">
       <div slot="header">
         <a class='link-type link-title' target="_blank" href='https://panjiachen.github.io/vue-element-admin-site/#/theme'>
-        {{$t('theme.documentation')}}
+        documentation
         </a>
       </div>
       <div class="box-item">
-        <span class="field-label">{{$t('theme.change')}} : </span>
+        <span class="field-label">change : </span>
         <el-switch v-model="theme"></el-switch>
-        <code style="margin-top:15px;">{{$t('theme.tips')}}</code>
+        <code style="margin-top:15px;">tips</code>
       </div>
     </el-card>
 

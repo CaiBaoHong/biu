@@ -16,6 +16,6 @@ public interface SysPermService extends IService<SysPerm> {
 
     void batchInsertIgnore(List<SysPerm> perms);
 
-    boolean updateByPermId(SysPerm perm);
+
 
 }

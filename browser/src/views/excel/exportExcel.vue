@@ -3,13 +3,13 @@
   <div class="app-container">
 
     <label class="radio-label" style="padding-left:0;">Filename: </label>
-    <el-input style='width:340px;' :placeholder="$t('excel.placeholder')" prefix-icon="el-icon-document" v-model="filename"></el-input>
+    <el-input style='width:340px;' placeholder="placeholder" prefix-icon="el-icon-document" v-model="filename"></el-input>
     <label class="radio-label">Cell Auto Width: </label>
     <el-radio-group v-model="autoWidth">
       <el-radio :label="true" border>True</el-radio>
       <el-radio :label="false" border>False</el-radio>
     </el-radio-group>
-    <el-button style='margin:0 0 20px 20px;' type="primary" icon="document" @click="handleDownload" :loading="downloadLoading">{{$t('excel.export')}} excel</el-button>
+    <el-button style='margin:0 0 20px 20px;' type="primary" icon="document" @click="handleDownload" :loading="downloadLoading">export excel</el-button>
 
     <el-table :data="list" v-loading.body="listLoading" element-loading-text="拼命加载中" border fit highlight-current-row>
       <el-table-column align="center" label='Id' width="95">

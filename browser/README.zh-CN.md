@@ -30,6 +30,8 @@
 
 - [使用文档](https://panjiachen.github.io/vue-element-admin-site/#/zh-cn/)
 
+- [Gitter讨论组](https://gitter.im/vue-element-admin/discuss)
+
 - [Wiki](https://github.com/PanJiaChen/vue-element-admin/wiki)
 
 - [Donate](https://panjiachen.github.io/vue-element-admin-site/#/zh-cn/donate)
@@ -52,7 +54,6 @@
  - [手摸手，带你封装一个 vue component](https://segmentfault.com/a/1190000009090836)
  - [手摸手，带你优雅的使用 icon](https://juejin.im/post/59bb864b5188257e7a427c09)
 
- 响应需求，开了一个qq群 `591724180` 方便大家交流
 
  或者加入该群主 **[圈子](https://jianshiapp.com/circles/1209)** 楼主会经常分享一些技术相关的东西
 
@@ -99,6 +100,7 @@
 - Form example
 - 二步登录
 - SplitPane
+- 拖拽 Dialog
 - Dropzone
 - Sticky
 - CountTo

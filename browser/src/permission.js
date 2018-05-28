@@ -15,119 +15,67 @@ NProgress.configure({ showSpinner: false })// NProgress Configuration
  */
 function hasPermission(userPerms, routerPerm) {
   //特殊值，*代表所有资源权限
-  if(userPerms.has('*')){
-    return true;
-  }
+  if(userPerms.some(p=>p.val=="*")) return true;
   //如果菜单路由上没有声明perm属性，默认显示该菜单，代表所有人可以访问
-  if(!routerPerm){
-    return true;
-  }
+  if(!routerPerm) return true;
   //判断用户的资源权限集合中是否包含该菜单路由声明的资源权限
-  return userPerms.has(routerPerm);
+  return userPerms.some(p=>p.val==routerPerm)
 }
 
 const loginRoute = "/login"
 const whiteList = new Set([loginRoute,'/authredirect'])// no redirect whitelist
 
-//在路由变化时候检查登录状态
 router.beforeEach((to, from, next) => {
 
-  NProgress.start(); // start progress bar
+  NProgress.start()
 
   let token = getToken();
+
   let hasToken = token != 'undefined' && token != undefined && token !=null && token != '';
 
-  // 1.cookie中没有token的情况：
-  if(!hasToken){
+  if (hasToken) {
+    // 1.有token
+    if (to.path == loginRoute) {
+      // 1.1 如果是去登录页，有token视为已登录，直接跳到首页
+      next({ path: '/' })
+      NProgress.done() // if current page is dashboard will not trigger	afterEach hook, so manually handle it
+    } else {
+      // 1.2 如果不是去登录页，判断是否有访问权限
+      // 用户刷新页面会导致vuex状态清空，或者用户首次登录，vuex中还没有权限信息。都要调用后台接口获得用户信息
+      if (!store.getters.perms || store.getters.perms.length === 0) {
+        store.dispatch('GetUserInfo').then(res => {
+          const perms = res.data.perms // note: roles must be a array! such as: ['editor','develop']
+          store.dispatch('GenerateRoutes', { perms }).then(() => { // 根据roles权限生成可访问的路由表
+            router.addRoutes(store.getters.addRouters) // 动态添加可访问路由表
+            next({ ...to, replace: true }) // hack方法 确保addRoutes已完成 ,set the replace: true so the navigation will not leave a history record
+          })
+        }).catch((err) => {
+          store.dispatch('FedLogOut').then(() => {
+            Message.error(err || '获取用户信息失败，请重试')
+            next({ path: '/' })
+          })
+        })
+      } else {
+        if (hasPermission(store.getters.perms, to.meta.perm)) {
+          next()
+        } else {
+          next({ path: '/401', replace: true, query: { noGoBack: true }})
+        }
+      }
+
+
+
+
+
+
+
+    }
+  } else {
+    // 2.没有token
     // 如果要访问的路由在白名单中，直接进入；否则，重定向到登录页面
     whiteList.has(to.path) ? next() : next(loginRoute);
     NProgress.done();
-    return;
   }
-
-  // 2.cookie中有token的情况：
-  // 如果访问登录页面，因为有token，视为登录状态，跳转到首页
-  if(to.path == loginRoute){
-    next('/');
-    NProgress.done();
-    return;
-  }
-
-  // 3. 点击左侧菜单时会触发页面路由变化，下面判断是否有权限跳转页面
-  // 3.1 如果vuex中有权限信息，判断
-  if(store.getters.perms.size > 0){
-    if (hasPermission(store.getters.perms, to.meta.perm)) {
-      next()
-    } else {
-      next({ path: '/401', replace: true, query: { noGoBack: true }})
-    }
-    return;
-  }
-
-  // 3.2 如果vuex中没有权限信息，就查询后台
-  store.dispatch('GetUserInfo').then(res => {
-    // 如果后台session超时退出登录了，会被src/utils/request.js拦截，会弹出提示用户重新登录
-    // 所以这里肯定是通过拦截后返回来的
-    const perms = res.data.perms // perms: ['menu:1','menu:2']
-
-    if(perms==null || perms==undefined || perms=='undefined' || perms==''){
-      Message.error('找不到登录用户的菜单权限信息')
-      NProgress.done();
-    }
-
-    // 根据后台返回的资源权限动态生成路由表
-    store.dispatch('GenerateRoutes', { perms }).then(() => {
-      router.addRoutes(store.getters.addRouters) // 动态添加可访问路由表
-      next({ ...to, replace: true }) // hack方法 确保addRoutes已完成 ,set the replace: true so the navigation will not leave a history record
-    })
-  }).catch(() => {
-    store.dispatch('FedLogOut').then(() => {
-      Message.error('查询登录用户的信息失败，请重试')
-      next({ path: '/login' })
-    })
-  })
-
-
-  /*
-  if (store.getters.roles.length == 0) { // 判断当前用户是否已拉取完user_info信息
-    store.dispatch('GetUserInfo').then(res => { // 拉取user_info
-
-      const roles = res.data.roles // note: roles must be a array! such as: ['editor','develop']
-
-      if( roles==null || roles.length == 0 ){
-
-        Message.error('找不到用户的角色信息')
-        NProgress.done();
-
-      }else{
-
-        store.dispatch('GenerateRoutes', { roles }).then(() => { // 根据roles权限生成可访问的路由表
-          router.addRoutes(store.getters.addRouters) // 动态添加可访问路由表
-          next({ ...to, replace: true }) // hack方法 确保addRoutes已完成 ,set the replace: true so the navigation will not leave a history record
-        })
-
-      }
-
-    }).catch(() => {
-      store.dispatch('FedLogOut').then(() => {
-        Message.error('查询登录用户的信息失败，请重试')
-        next({ path: '/login' })
-      })
-    })
-  } else {
-    // 没有动态改变权限的需求可直接next() 删除下方权限判断 ↓
-    if (hasPermission(store.getters.roles, to.meta.roles)) {
-      next()//
-    } else {
-      next({ path: '/401', replace: true, query: { noGoBack: true }})
-    }
-    // 可删 ↑
-  }
-  */
-
-
-
-
 })
 
 router.afterEach(() => {

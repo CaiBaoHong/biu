@@ -52,9 +52,8 @@
       </el-table-column>
 
     </el-table>
-    <!-- $t is vue-i18n global function to translate lang (lang in @/lang)  -->
-    <div class='show-d'>{{$t('table.dragTips1')}} : &nbsp; {{ oldList}}</div>
-    <div class='show-d'>{{$t('table.dragTips2')}} : {{newList}}</div>
+    <div class='show-d'>dragTips1 : &nbsp; {{ oldList}}</div>
+    <div class='show-d'>dragTips2 : {{newList}}</div>
 
   </div>
 </template>

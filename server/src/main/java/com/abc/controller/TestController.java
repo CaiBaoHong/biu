@@ -1,6 +1,6 @@
 package com.abc.controller;
 
-import com.abc.annotation.PermissionRemark;
+import com.abc.annotation.PermInfo;
 import org.apache.shiro.authz.annotation.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * created by CaiBaoHong at 2018/4/17 14:16<br>
  */
-@PermissionRemark("测试接口")
+@PermInfo("测试接口")
 @RestController
 @RequestMapping("/test")
 public class TestController {
@@ -47,7 +47,7 @@ public class TestController {
     }
 
     @RequiresPermissions("gradleBuild")
-    @PermissionRemark("构建gradle")
+    @PermInfo("构建gradle")
     @GetMapping("/gradleBuild")
     public String gradleBuild() {
         return "gradleBuild";
