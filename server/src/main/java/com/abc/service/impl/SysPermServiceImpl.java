@@ -26,8 +26,10 @@ public class SysPermServiceImpl extends ServiceImpl<SysPermMapper, SysPerm> impl
     }
 
     @Override
-    public void batchInsertIgnore(List<SysPerm> perms) {
-        baseMapper.batchInsertIgnore(perms);
+    public void saveOrUpdate(List<SysPerm> perms) {
+        if (perms!=null&&!perms.isEmpty()){
+            baseMapper.saveOrUpdate(perms);
+        }
     }
 
 

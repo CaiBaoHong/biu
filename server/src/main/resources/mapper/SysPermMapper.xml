@@ -13,11 +13,13 @@
         WHERE p.pid = rp.perm_id AND rp.role_id = #{roleId}
     </select>
 
-    <insert id="batchInsertIgnore">
-        INSERT IGNORE INTO sys_perm (pval,parent,pname,ptype,created) VALUES
+    <insert id="saveOrUpdate">
+        INSERT INTO sys_perm (pval,parent,pname,ptype,created) VALUES
         <foreach collection="perms" item="p" separator=",">
             (#{p.pval},#{p.parent},#{p.pname},#{p.ptype},#{p.created})
         </foreach>
+        ON DUPLICATE KEY UPDATE
+        pname = VALUES(pname), parent = VALUES(parent), ptype = VALUES(ptype), updated = now()
     </insert>
 
 

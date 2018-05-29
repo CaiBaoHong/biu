@@ -1,5 +1,6 @@
 package com.abc.controller;
 
+import com.abc.annotation.PermInfo;
 import com.abc.entity.SysPerm;
 import com.abc.entity.SysRole;
 import com.abc.entity.SysRolePerm;
@@ -14,7 +15,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.baomidou.mybatisplus.plugins.Page;
-import com.baomidou.mybatisplus.toolkit.IdWorker;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.slf4j.Logger;
@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 /**
  * created by CaiBaoHong at 2018/4/17 16:41<br>
  */
+@PermInfo(value = "系统角色模块", pval = "a:sys:role")
 @RestController
 @RequestMapping("/sys_role")
 public class SysRoleController {
@@ -96,7 +97,7 @@ public class SysRoleController {
      * @param body
      * @return
      */
-    @RequiresPermissions("role:query")
+    @RequiresPermissions("a:role:query")
     @PostMapping("/query")
     public Json query(@RequestBody String body) {
 
@@ -127,7 +128,7 @@ public class SysRoleController {
      * @param body
      * @return
      */
-    @RequiresPermissions("role:update")
+    @RequiresPermissions("a:role:update")
     @PatchMapping("/info")
     public Json update(@RequestBody String body) {
 
@@ -170,7 +171,7 @@ public class SysRoleController {
         });
 
         // 先插入权限值，保证perm表上有值可以做role_perm表的关联
-        permService.batchInsertIgnore(vo.getPerms());
+        permService.saveOrUpdate(vo.getPerms());
 
 
         // 再查询出来，目的是拿到所有pval对应的pid

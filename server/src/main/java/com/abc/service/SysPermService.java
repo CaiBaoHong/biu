@@ -14,7 +14,7 @@ public interface SysPermService extends IService<SysPerm> {
 
     List<SysPerm> getPermValsByRoleId(String roleId);
 
-    void batchInsertIgnore(List<SysPerm> perms);
+    void saveOrUpdate(List<SysPerm> perms);
 
 
 

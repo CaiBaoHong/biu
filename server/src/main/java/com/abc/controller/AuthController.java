@@ -1,5 +1,6 @@
 package com.abc.controller;
 
+import com.abc.annotation.PermInfo;
 import com.abc.constant.Codes;
 import com.abc.entity.SysUser;
 import com.abc.vo.Json;
@@ -21,6 +22,7 @@ import java.util.UUID;
 /**
  * created by CaiBaoHong at 2018/4/20 17:26<br>
  */
+@PermInfo(value = "登录模块", pval = "a:auth")
 @RestController
 @RequestMapping("/auth")
 public class AuthController {

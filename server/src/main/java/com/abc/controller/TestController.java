@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * created by CaiBaoHong at 2018/4/17 14:16<br>
  */
-@PermInfo("测试接口")
+@PermInfo(value = "测试模块模块", pval = "a:test")
 @RestController
 @RequestMapping("/test")
 public class TestController {
@@ -40,13 +40,13 @@ public class TestController {
         return "@RequiresUser";
     }
 
-    @RequiresPermissions("mvn:install")
+    @RequiresPermissions("a:mvn:install")
     @GetMapping("/mvnInstall")
     public String mvnInstall() {
         return "mvn:install";
     }
 
-    @RequiresPermissions("gradleBuild")
+    @RequiresPermissions("a:gradleBuild")
     @PermInfo("构建gradle")
     @GetMapping("/gradleBuild")
     public String gradleBuild() {

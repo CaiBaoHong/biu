@@ -1,5 +1,6 @@
 package com.abc.controller;
 
+import com.abc.annotation.PermInfo;
 import com.abc.entity.SysRole;
 import com.abc.service.SysRoleService;
 import com.abc.vo.Json;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 /**
  * created by CaiBaoHong at 2018/4/17 16:41<br>
  */
+@PermInfo(value = "选项模块", pval = "a:option")
 @RestController
 @RequestMapping("/option")
 public class OptionController {

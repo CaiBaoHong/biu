@@ -1,5 +1,6 @@
 package com.abc.controller;
 
+import com.abc.annotation.PermInfo;
 import com.abc.constant.Root;
 import com.abc.entity.SysUser;
 import com.abc.entity.SysUserRole;
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
 /**
  * created by CaiBaoHong at 2018/4/17 16:41<br>
  */
+@PermInfo(value = "系统用户模块", pval = "a:sys:接口")
 @RestController
 @RequestMapping("/sys_user")
 public class SysUserController {

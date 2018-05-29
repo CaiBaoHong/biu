@@ -17,12 +17,23 @@ export default{
   },
 
   /**
-   * 批量添加权限
+   * 同步菜单权限数据
    * @param data
    */
-  batchSavePerms(permArr) {
+  syncMenuPerms(permArr) {
     return request({
-      url: '/sys_perm/batch_save',
+      url: '/sys_perm/sync/menu',
+      method: 'post',
+      data: permArr
+    })
+  },
+  /**
+   * 同步接口权限数据
+   * @param data
+   */
+  syncApiPerms(permArr) {
+    return request({
+      url: '/sys_perm/sync/api',
       method: 'post',
       data: permArr
     })

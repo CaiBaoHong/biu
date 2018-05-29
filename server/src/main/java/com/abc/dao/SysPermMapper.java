@@ -14,7 +14,7 @@ public interface SysPermMapper extends BaseMapper<SysPerm> {
 
     List<SysPerm> getPermValsByRoleId(@Param("roleId") String roleId);
 
-    void batchInsertIgnore(@Param("perms") List<SysPerm> perms);
+    void saveOrUpdate(@Param("perms") List<SysPerm> perms);
 
 
 

@@ -1,12 +1,15 @@
 package com.abc.entity;
 
 import com.baomidou.mybatisplus.activerecord.Model;
+import com.baomidou.mybatisplus.annotations.TableField;
 import com.baomidou.mybatisplus.annotations.TableId;
 import com.baomidou.mybatisplus.annotations.TableName;
 import com.baomidou.mybatisplus.enums.IdType;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * created by CaiBaoHong at 2018/4/17 14:55<br>
@@ -22,9 +25,20 @@ public class SysPerm extends Model<SysPerm> {
     private Date created;   // 创建时间
     private Date updated;   // 修改时间
 
+    @TableField(exist = false)
+    private List<SysPerm> children = new ArrayList<>();
+
     @Override
     protected Serializable pkVal() {
         return pval;
+    }
+
+    public List<SysPerm> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<SysPerm> children) {
+        this.children = children;
     }
 
     public String getPval() {

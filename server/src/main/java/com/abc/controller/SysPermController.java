@@ -11,10 +11,10 @@ import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.baomidou.mybatisplus.plugins.Page;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.reflect.MethodUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.annotation.AnnotationBeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -22,16 +22,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * created by CaiBaoHong at 2018/4/17 16:41<br>
  */
-@RestController()
+@PermInfo(value = "系统权限模块", pval = "a:sys:perm")
+@RestController
 @RequestMapping("/sys_perm")
-@PermInfo(value = "权限模块",pval = "api:sys:perm")
 public class SysPermController {
 
     private static final Logger log = LoggerFactory.getLogger(SysPermController.class);
@@ -41,33 +41,64 @@ public class SysPermController {
 
     /**
      * 列出所有类型的权限：菜单、按钮、接口
+     *
      * @return
      */
     @GetMapping("/list/all")
-    public Json listMenuButtonPermission(){
+    public Json listAllPermission() {
         String oper = "list menu,button,api permissions";
         EntityWrapper<SysPerm> params = new EntityWrapper<>();
-        params.in("ptype", new Integer[]{PermType.MENU,PermType.BUTTON,PermType.API});
+        params.in("ptype", new Integer[]{PermType.MENU, PermType.BUTTON, PermType.API});
         List<SysPerm> list = permService.selectList(params);
-        Map<Integer, List<SysPerm>> permMap = list.stream().collect(Collectors.groupingBy(SysPerm::getPtype));
-        List<SysPerm> buttonPermList = permMap.get(PermType.BUTTON);
-        Map<String, List<SysPerm>> buttonsGroupedByParent = buttonPermList.stream().collect(Collectors.groupingBy(SysPerm::getParent));
-        return Json.succ(oper,"permMap",permMap).data("btnPermMap",buttonsGroupedByParent);
+        if (list.isEmpty()){
+            return Json.succ(oper);
+        }else{
+            Map<Integer, List<SysPerm>> permMap = list.stream().collect(Collectors.groupingBy(SysPerm::getPtype));
+            List<SysPerm> buttonPermList = permMap.get(PermType.BUTTON);
+            Map<String, List<SysPerm>> buttonsGroupedByParent = new HashMap<>();
+            if (buttonPermList!=null&&!buttonPermList.isEmpty()){
+                buttonsGroupedByParent = buttonPermList.stream().collect(Collectors.groupingBy(SysPerm::getParent));
+            }
+            return Json.succ(oper, "permMap", permMap).data("btnPermMap", buttonsGroupedByParent);
+        }
+
+
     }
 
     /**
-     * 批量保存权限数据
+     * 同步菜单权限
+     *
      * @return
      */
-    @PostMapping("/batch_save")
-    public Json batchSavePerms(@RequestBody String body){
-        String oper = "batch save perm data";
+    @PostMapping("/sync/menu")
+    public Json syncMenuPermission(@RequestBody String body) {
+        String oper = "sync menu permission";
         log.info("{}, body: {}", oper, body);
         List<SysPerm> notSyncedPerms = JSON.parseArray(body, SysPerm.class);
-        permService.batchInsertIgnore(notSyncedPerms);
+        if (!notSyncedPerms.isEmpty()){
+            permService.delete(new EntityWrapper<SysPerm>().eq("ptype",PermType.MENU));
+            permService.saveOrUpdate(notSyncedPerms);
+        }
         return Json.succ(oper);
     }
 
+    /**
+     * 同步接口权限
+     *
+     * @return
+     */
+    @PostMapping("/sync/api")
+    public Json syncApiPermission(@RequestBody String body) {
+        String oper = "sync api permission";
+        log.info("{}, body: {}", oper, body);
+        List<SysPerm> notSyncedPerms = JSON.parseArray(body, SysPerm.class);
+        if (!notSyncedPerms.isEmpty()){
+            permService.delete(new EntityWrapper<SysPerm>().eq("ptype",PermType.API));
+            permService.saveOrUpdate(notSyncedPerms);
+        }
+
+        return Json.succ(oper);
+    }
 
     /**
      * 新增权限
@@ -86,12 +117,12 @@ public class SysPermController {
         }
 
         EntityWrapper<SysPerm> params = new EntityWrapper<>();
-        params.eq("pval",perm.getPval());
+        params.eq("pval", perm.getPval());
         params.setSqlSelect("pname,pval");
         SysPerm permDB = permService.selectOne(params);
 
         if (permDB != null) {
-            return Json.fail(oper, "权限值已存在："+permDB.getPname()+"（"+perm.getPval()+"）");
+            return Json.fail(oper, "权限值已存在：" + permDB.getPname() + "（" + perm.getPval() + "）");
         }
 
         //保存
@@ -103,6 +134,7 @@ public class SysPermController {
 
     /**
      * 根据权限值删除权限
+     *
      * @param body
      * @return
      */
@@ -125,7 +157,8 @@ public class SysPermController {
      * @param body
      * @return
      */
-    @RequiresPermissions("perm:query")
+    @PermInfo("查询sys_perm")
+    @RequiresPermissions("a:perm:query")
     @PostMapping("/query")
     public Json query(@RequestBody String body) {
 
@@ -157,10 +190,11 @@ public class SysPermController {
 
     /**
      * 更新，只允许更新权限名称，不允许更新权限值
+     *
      * @param body
      * @return
      */
-    @RequiresPermissions("perm:update")
+    @RequiresPermissions("a:perm:update")
     @PatchMapping("/info")
     public Json update(@RequestBody String body) {
 
@@ -190,73 +224,94 @@ public class SysPermController {
         String oper = "list api permission metadata";
         log.info(oper);
 
-        String basicPackage = ClassUtils.getPackageName(this.getClass());
+        final String basicPackage = ClassUtils.getPackageName(this.getClass());
         Map<String, Object> map = context.getBeansWithAnnotation(Controller.class);
         Collection<Object> beans = map.values();
-        beans.stream().filter( b-> StringUtils.equals(basicPackage,ClassUtils.getPackageName(b.getClass())))
-                .forEach(bean->{
+        List<SysPerm> apiList = beans.stream().filter(b -> StringUtils.equals(basicPackage, ClassUtils.getPackageName(b.getClass())))
+                .map(bean -> {
                     Class<?> clz = bean.getClass();
-                    SysPerm modulePerm = getModulePerm(clz);
-                    System.out.println("模块权限："+modulePerm.getPname()+", "+modulePerm.getPval());
-                });
-
-        /*
-        for (Object bean : beans) {
-            Class<?> clz = bean.getClass();
-            System.out.println("class name: "+clz.getSimpleName());
-            Class<?> superclass = clz.getSuperclass();
-            System.out.println("superclass : "+superclass.getSimpleName());
-            Annotation[] annos = superclass.getAnnotations();
-            for (Annotation anno : annos) {
-                System.out.println("anno:"+ anno.annotationType().getSimpleName());
-                PermInfo pm = AnnotationUtils.getAnnotation(anno, PermInfo.class);
-                if (pm!=null){
-                    System.out.println("pm: "+pm.value());
-                }
-
-            }
-
-        }
-        */
-
-        return Json.succ(oper);
+                    SysPerm moduleApiPerm = getModulePerm(clz);
+                    List<SysPerm> methodApiPerm = getApiPerm(clz, moduleApiPerm.getPval());
+                    moduleApiPerm.getChildren().addAll(methodApiPerm);
+                    return moduleApiPerm;
+                }).collect(Collectors.toList());
+        return Json.succ(oper,"apiList",apiList);
     }
 
-    public SysPerm getModulePerm(Class<?> clz){
+    /**
+     * 获取控制器上的方法上的注释，生成后台接口权限的信息
+     *
+     * @param clz
+     * @return
+     */
+    private List<SysPerm> getApiPerm(Class<?> clz,final String parentPval) {
+        //获取clz类上有RequiresPermissions注解的所有方法
+        List<Method> apiMethods = MethodUtils.getMethodsListWithAnnotation(clz.getSuperclass(), RequiresPermissions.class);
+        System.out.println("apiMehtod: "+apiMethods.size());
+        return apiMethods.stream().map(method -> {
+            //pname首选
+            //获取method方法上的PermInfo注解的元数据
+            PermInfo piAnno = AnnotationUtils.getAnnotation(method, PermInfo.class);
+            String pnamePrimary = piAnno!=null?piAnno.value():null;
+            //pname备选
+            String pnameSub = method.getName();
+            //pval值
+            //获取method方法上的RequiresPermissions注解的元数据
+            RequiresPermissions rpAnno = AnnotationUtils.getAnnotation(method, RequiresPermissions.class);
+            SysPerm perm = new SysPerm();
+            if (StringUtils.isNotBlank(pnamePrimary)){
+                perm.setPname(pnamePrimary);
+            }else{
+                perm.setPname(pnameSub);
+            }
+            perm.setParent(parentPval);
+            perm.setPtype(PermType.API);
+            perm.setPval(rpAnno.value()[0]);
+            return perm;
+        }).collect(Collectors.toList());
+    }
+
+    /**
+     * 获取控制器上的注释，生成后台接口模块权限的信息
+     *
+     * @param clz
+     * @return
+     */
+    public SysPerm getModulePerm(Class<?> clz) {
         SysPerm perm = new SysPerm();
         //首选值
         PermInfo piAnno = AnnotationUtils.getAnnotation(clz, PermInfo.class);
-        if (piAnno==null){
+        if (piAnno == null) {
+            //由于使用了RequiresPermissions注解的类在运行时会使用动态代理，即clz在运行时是一个动态代理，所以需要getSuperClass获取实际的类型
             piAnno = AnnotationUtils.getAnnotation(clz.getSuperclass(), PermInfo.class);
         }
         String pnamePrimary = null;
         String pvalPrimary = null;
-        if (piAnno!=null && piAnno.value()!=null){
+        if (piAnno != null && piAnno.value() != null) {
             pnamePrimary = piAnno.value();
             pvalPrimary = piAnno.pval();
         }
         //备选值
         String pnameSub = ClassUtils.getShortName(clz);
         RequestMapping rmAnno = AnnotationUtils.getAnnotation(clz, RequestMapping.class);
-        if(rmAnno==null){
+        if (rmAnno == null) {
             rmAnno = AnnotationUtils.getAnnotation(clz.getSuperclass(), RequestMapping.class);
         }
         String pvalSub = rmAnno.value()[0];
         //赋值
-        if (StringUtils.isNotBlank(pnamePrimary)){
+        if (StringUtils.isNotBlank(pnamePrimary)) {
             perm.setPname(pnamePrimary);
-        }else{
+        } else {
             perm.setPname(pnameSub);
         }
-        if (StringUtils.isNotBlank(pvalPrimary)){
+        if (StringUtils.isNotBlank(pvalPrimary)) {
             perm.setPval(pvalPrimary);
-        }else{
-            perm.setPval(pvalSub);
+        } else {
+            perm.setPval("a:"+pvalSub.substring(1).replace("/",":"));
         }
         perm.setPtype(PermType.API);
         return perm;
     }
-
 
 
 }
