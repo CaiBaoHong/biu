@@ -64,10 +64,14 @@ export default {
       if (!route) {
         return false
       }
+      if(route.meta.hiddenTag){
+        return false
+      }
       this.$store.dispatch('addVisitedViews', route)
     },
     moveToCurrentTag() {
-      const tags = this.$refs.tag
+      const tags = this.$refs.tag;
+      if(!tags) return;
       this.$nextTick(() => {
         for (const tag of tags) {
           if (tag.to === this.$route.path) {
@@ -76,6 +80,7 @@ export default {
           }
         }
       })
+
     },
     closeSelectedTag(view) {
       this.$store.dispatch('delVisitedViews', view).then((views) => {

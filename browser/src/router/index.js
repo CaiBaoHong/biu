@@ -68,8 +68,14 @@ export const asyncRouterMap = [
         path: 'role_manage',
         name: 'role_manage',
         component: _import('_system/role/index'),
-        meta: { perm: 'm:sys:role', title: '角色管理', icon: 'chart', noCache: true }
-
+        meta: { perm: 'm:sys:role', title: '角色管理', icon: 'chart', noCache: true },
+      },
+      {
+        hidden: true,
+        path: 'role_manage/:roleId/assign_perm',
+        name: 'role_manage_assign_perm',
+        component: _import('_system/role/assign_perm'),
+        meta: { hiddenTag: true },
       },
       {
         path: 'perm_manage',
@@ -80,38 +86,6 @@ export const asyncRouterMap = [
       },
     ]
   },
-
-  /*
-  {
-    path: '/permission',
-    component: Layout,
-    redirect: '/permission/index',
-    alwaysShow: true, // will always show the root menu
-    meta: {
-      title: '权限测试页',
-      icon: 'lock',
-      roles: ['admin', 'editor'] // you can set roles in root nav
-    },
-    children: [{
-      path: 'page',
-      component: _import('permission/page'),
-      name: 'pagePermission',
-      meta: {
-        title: '页面权限',
-        roles: ['admin'] // or you can only set roles in sub nav
-      }
-    }, {
-      path: 'directive',
-      component: _import('permission/directive'),
-      name: 'directivePermission',
-      meta: {
-        title: '指令权限'
-        // if do not set roles, means: this page does not require permission
-      }
-    }]
-  },
-  */
-
   {
     path: '/menu1',
     component: Layout,
@@ -123,9 +97,11 @@ export const asyncRouterMap = [
     }]
   },
 
+
   {
     path: '/menu2',
     component: Layout,
+    meta: { perm:'m:menu2' },
     children: [{
       path: 'index',
       name: 'menu2',
@@ -148,6 +124,7 @@ export const asyncRouterMap = [
       { path: 'menu3_3', component: _import('menu/menu3_3'), name: 'menu3_3', meta: { perm:'m:menu3:3', title: '菜单3-3', icon: 'chart', noCache: true }}
     ]
   },
+
 
   {
     path: '/menu4',

@@ -250,6 +250,9 @@
 
       //更新用户的角色
       handleUpdateRolePerms(idx, row) {
+
+        this.$router.push({path:'/system/role_manage/'+row.rid+'/assign_perm'})
+        /*
         // 生成可以做权限控制的菜单、按钮树
         if(this.menuBtnTree.length==0){
           this.generateMenuBtnTree()
@@ -273,6 +276,8 @@
           perms: []
         }
         this.editPermsDialogVisible = true
+
+        */
       },
 
       updateRolePerms() {
