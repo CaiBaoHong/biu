@@ -128,7 +128,7 @@
 
   import { mapGetters } from 'vuex'
   import { asyncRouterMap } from '@/router'     //路由表，定义了菜单和按钮的元数据，可以用来生成权限控制的菜单按钮树
-  import { addRole, deleteRole, queryRole, updateRole, updateRolePerms,findRolePvals } from '@/api/role'
+  import roleApi from '@/api/role'
   import { parseTime, resetTemp } from '@/utils'
   import { pageParamNames, addSuccNotify, deleteSuccNotify, updateSuccNotify,deleteConfirm } from '@/utils/constants'
   import debounce from 'lodash/debounce'
@@ -215,7 +215,7 @@
       //查询
       fetchData() {
         this.tableLoading = true
-        queryRole(this.tableQuery,this.tablePage).then(res => {
+        roleApi.queryRole(this.tableQuery,this.tablePage).then(res => {
           this.tableData = res.data.page.records
           this.tableLoading = false
           //设置后台返回的分页参数
@@ -238,7 +238,7 @@
         this.$refs['dataForm'].validate((valid) => {
           if (!valid) return;
             const tempData = Object.assign({}, this.temp)//copy obj
-            updateRole(tempData).then(res => {
+            roleApi.updateRole(tempData).then(res => {
               this.temp.updated = res.data.updated
               this.tableData.splice(this.temp.idx, 1, this.temp)
               this.dialogFormVisible = false
@@ -282,7 +282,7 @@
 
       updateRolePerms() {
         this.updateRolePermsData.perms = this.getCheckedPerms()
-        updateRolePerms(this.updateRolePermsData).then(res=>{
+        roleApi.updateRolePerms(this.updateRolePermsData).then(res=>{
           this.editPermsDialogVisible = false
           this.$notify(updateSuccNotify)
         })
@@ -294,7 +294,7 @@
 
         this.$confirm('您确定要永久删除该用户？', '提示', deleteConfirm).then(() => {
 
-          deleteRole( {rid : row.rid} ).then(res => {
+          roleApi.deleteRole( {rid : row.rid} ).then(res => {
             this.tableData.splice(idx, 1)
             --this.tablePage.total
             this.dialogFormVisible = false
@@ -318,7 +318,7 @@
       createData() {
         this.$refs['dataForm'].validate((valid) => {
           if (!valid) return;
-            addRole(this.temp).then((res) => {
+          roleApi.addRole(this.temp).then((res) => {
               this.temp.rid = res.data.rid;//后台传回来新增记录的id
               this.temp.created = res.data.created;//后台传回来新增记录的时间
               this.tableData.unshift(this.temp)

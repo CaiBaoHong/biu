@@ -17,7 +17,7 @@
               菜单权限值建议使用前缀&nbsp;<el-tag size="mini" type="success">m:</el-tag>
             </span>
           </div>
-          <el-input class="mgb-15" placeholder="输入关键字进行过滤" v-model="filterMenuPermText"></el-input>
+          <el-input class="mgb-15" :placeholder="filterPlaceholderText" v-model="filterMenuPermText"></el-input>
           <el-tree ref="menuPermTreeRef" :filter-node-method="filterNode" :data="menuPermissionTree"
                    :props="treeProps" node-key="pval" default-expand-all :expand-on-click-node="false">
             <span class="custom-tree-node" slot-scope="{ node, data }">
@@ -36,14 +36,14 @@
       <el-col :span="8">
         <el-card class="box-card">
           <div slot="header">
-            <div class="title-box" style="padding-top: 10px; padding-bottom: 16px;">
+            <div class="title-box" style="padding-top: 10px; padding-bottom: 13px;">
               <span><el-tag type="warning" >按钮</el-tag>&nbsp;权限元数据</span>
             </div>
             <span class="tips-text">提示：按钮权限是依附在菜单权限下的，这样能帮助您更好区分相似的按钮权限。
               按钮权限值建议使用前缀&nbsp;<el-tag size="mini" type="warning">b:</el-tag>
             </span>
           </div>
-          <el-input class="mgb-15" placeholder="输入关键字进行过滤" v-model="filterButtonPermText"></el-input>
+          <el-input class="mgb-15" :placeholder="filterPlaceholderText" v-model="filterButtonPermText"></el-input>
           <el-tree ref="buttonPermTreeRef" :filter-node-method="filterNode" :data="buttonPermissionTree"
                    :props="treeProps" node-key="pid" default-expand-all :expand-on-click-node="false">
             <span class="custom-tree-node" slot-scope="{ node, data }">
@@ -83,7 +83,7 @@
               接口权限值建议使用前缀&nbsp;<el-tag size="mini" >a:</el-tag>
             </span>
           </div>
-          <el-input class="mgb-15" placeholder="输入关键字进行过滤" v-model="filterApiPermText"></el-input>
+          <el-input class="mgb-15" :placeholder="filterPlaceholderText" v-model="filterApiPermText"></el-input>
           <el-tree ref="apiPermTreeRef" :filter-node-method="filterNode" :data="apiPermissionTree"
                    :props="treeProps" node-key="pval" default-expand-all :expand-on-click-node="false">
             <span class="custom-tree-node" slot-scope="{node,data}">
@@ -101,13 +101,14 @@
     </el-row>
 
     <!--弹窗：新增或编辑权限-->
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="30%">
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="30%" >
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="top">
         <el-form-item label="权限名" prop="pname">
           <el-input v-model="temp.pname" placeholder="例如：用户管理、添加用户"></el-input>
         </el-form-item>
         <el-form-item label="权限值" prop="pval">
           <el-input v-model="temp.pval" placeholder="例如：b:user:manage、b:user:add" :disabled="dialogStatus=='updateButton'"></el-input>
+          <span class="tips-text" >提示：接口权限值建议使用前缀&nbsp;<el-tag size="mini" type="warning" >b:</el-tag></span>
         </el-form-item>
         <el-form-item label="父级权限值" prop="parent">
           <el-input v-model="temp.parent" :disabled="true"></el-input>
@@ -146,6 +147,8 @@
     name: 'PermManage',
     data() {
       return {
+
+        filterPlaceholderText: '输入权限名称、权限值过滤',
 
         menuPermValSet: new Set(),
         apiPermValSet: new Set(),
@@ -444,10 +447,13 @@
         tree.forEach(perm => {
           let temp = Object.assign({}, perm)
           temp.children = []
-          list.push(temp)
           if (perm.children && perm.children.length > 0) {
+            temp.leaf = false
             this.permissionTreeToList(list, perm.children)
+          }else{
+            temp.leaf = true
           }
+          list.push(temp)
         })
       },
 

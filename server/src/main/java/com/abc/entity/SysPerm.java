@@ -22,6 +22,7 @@ public class SysPerm extends Model<SysPerm> {
     private String parent;  // 父节点权限值
     private String pname;   // 权限名称
     private Integer ptype;  // 权限类型：1.菜单；2.按钮
+    private Boolean leaf;   // 是否叶子节点
     private Date created;   // 创建时间
     private Date updated;   // 修改时间
 
@@ -31,6 +32,14 @@ public class SysPerm extends Model<SysPerm> {
     @Override
     protected Serializable pkVal() {
         return pval;
+    }
+
+    public Boolean getLeaf() {
+        return leaf;
+    }
+
+    public void setLeaf(Boolean leaf) {
+        this.leaf = leaf;
     }
 
     public List<SysPerm> getChildren() {

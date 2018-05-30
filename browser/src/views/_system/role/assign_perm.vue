@@ -7,19 +7,14 @@
       <el-col :span="8">
         <el-card class="box-card">
           <div slot="header">
-            <div class="title-box">
+            <div class="title-box" style="padding-top: 10px; padding-bottom: 13px;">
               <span><el-tag type="success" >菜单</el-tag>&nbsp;权限元数据</span>
-              <el-tooltip content="同步菜单权限数据" placement="top">
-                <el-button style="font-size: 25px;" type="text" @click="handleSyncMenuPermissionData" icon="el-icon-refresh" circle></el-button>
-              </el-tooltip>
             </div>
-            <span class="tips-text">提示：菜单权限由页面路由定义，不提供任何编辑功能，只能执行将权限数据同步到数据库的操作。
-              菜单权限值建议使用前缀&nbsp;<el-tag size="mini" type="success">m:</el-tag>
-            </span>
+            <span class="tips-text">提示：勾选权限即可为角色授权</span>
           </div>
-          <el-input class="mgb-15" placeholder="输入关键字进行过滤" v-model="filterMenuPermText"></el-input>
-          <el-tree ref="menuPermTreeRef" :filter-node-method="filterNode" :data="menuPermissionTree"
-                   :props="treeProps" node-key="pval" default-expand-all :expand-on-click-node="false">
+          <el-input class="mgb-15" :placeholder="filterPlaceholderText" v-model="filterMenuPermText"></el-input>
+          <el-tree @check-change="handleUpdateMenuPermForRole" show-checkbox ref="menuPermTreeRef" :filter-node-method="filterNode"
+                   :data="menuPermissionTree" :props="treeProps" node-key="pval" default-expand-all :expand-on-click-node="false">
             <span class="custom-tree-node" slot-scope="{ node, data }">
               <span>
                 <span class="mgl-10">{{ data.pname }}</span>
@@ -36,33 +31,22 @@
       <el-col :span="8">
         <el-card class="box-card">
           <div slot="header">
-            <div class="title-box" style="padding-top: 10px; padding-bottom: 16px;">
+            <div class="title-box" style="padding-top: 10px; padding-bottom: 13px;">
               <span><el-tag type="warning" >按钮</el-tag>&nbsp;权限元数据</span>
             </div>
-            <span class="tips-text">提示：按钮权限是依附在菜单权限下的，这样能帮助您更好区分相似的按钮权限。
-              按钮权限值建议使用前缀&nbsp;<el-tag size="mini" type="warning">b:</el-tag>
-            </span>
+            <span class="tips-text">提示：勾选权限即可为角色授权</span>
           </div>
-          <el-input class="mgb-15" placeholder="输入关键字进行过滤" v-model="filterButtonPermText"></el-input>
+          <el-input class="mgb-15" :placeholder="filterPlaceholderText" v-model="filterButtonPermText"></el-input>
           <el-tree ref="buttonPermTreeRef" :filter-node-method="filterNode" :data="buttonPermissionTree"
                    :props="treeProps" node-key="pid" default-expand-all :expand-on-click-node="false">
             <span class="custom-tree-node" slot-scope="{ node, data }">
                 <span>
+                  <el-checkbox v-if="data.ptype==permType.BUTTON" v-model="btnCheckboxMap[data.pval]"
+                               @change="(checked)=>{handleUpdateBtnPermForRole(checked,data.pval)}"></el-checkbox>
                   <span class="mgl-10">{{ data.pname }}</span>
                   <span class="mgl-10 tips-text">{{ data.pval }}</span>
                   <el-tag class="mgl-10" v-if="data.ptype==permType.MENU" type="success" size="mini">菜单</el-tag>
                   <el-tag class="mgl-10" v-else-if="data.ptype==permType.BUTTON" type="warning" size="mini">按钮</el-tag>
-                </span>
-                <el-tooltip v-if="data.ptype==permType.MENU" style="margin-right: 80px;" content="添加按钮权限" placement="top">
-                  <el-button type="text" size="mini" icon="el-icon-plus" @click="handleAddButton(data)"></el-button>
-                </el-tooltip>
-                <span v-if="data.ptype==permType.BUTTON">
-                  <el-tooltip content="更新" placement="top">
-                    <el-button class="update-btn" type="text" size="mini" icon="el-icon-edit" @click="handleUpdateButton(data)"></el-button>
-                  </el-tooltip>
-                  <el-tooltip content="删除" placement="top">
-                    <el-button class="delete-btn" type="text" size="mini" icon="el-icon-delete" @click="handleDeleleButton(data)"></el-button>
-                  </el-tooltip>
                 </span>
             </span>
           </el-tree>
@@ -73,19 +57,14 @@
       <el-col :span="8">
         <el-card class="box-card">
           <div slot="header">
-            <div class="title-box">
+            <div class="title-box" style="padding-top: 10px; padding-bottom: 13px;">
               <span><el-tag>接口</el-tag>&nbsp;权限元数据</span>
-              <el-tooltip content="同步接口权限数据" placement="top">
-                <el-button style="font-size: 25px;" type="text" @click="handleSyncApiPermissionData" icon="el-icon-refresh" circle></el-button>
-              </el-tooltip>
             </div>
-            <span class="tips-text">提示：接口菜单权限由后台定义，不提供任何编辑功能，只能执行将权限数据同步到数据库的操作。
-              接口权限值建议使用前缀&nbsp;<el-tag size="mini" >a:</el-tag>
-            </span>
+            <span class="tips-text">提示：勾选权限即可为角色授权</span>
           </div>
-          <el-input class="mgb-15" placeholder="输入关键字进行过滤" v-model="filterApiPermText"></el-input>
-          <el-tree ref="apiPermTreeRef" :filter-node-method="filterNode" :data="apiPermissionTree"
-                   :props="treeProps" node-key="pval" default-expand-all :expand-on-click-node="false">
+          <el-input class="mgb-15" :placeholder="filterPlaceholderText" v-model="filterApiPermText"></el-input>
+          <el-tree @check-change="handleUpdateApiPermForRole" show-checkbox ref="apiPermTreeRef" :filter-node-method="filterNode"
+                   :data="apiPermissionTree" :props="treeProps" node-key="pval" default-expand-all :expand-on-click-node="false">
             <span class="custom-tree-node" slot-scope="{node,data}">
               <span>
                 <span class="mgl-10">{{ data.pname }}</span>
@@ -132,6 +111,7 @@
 
   import {parseTime, resetTemp} from '@/utils'
   import permApi from '@/api/perm'
+  import roleApi from '@/api/role'
   import {
     apiPermissionOptions,
     deleteConfirm,
@@ -141,14 +121,29 @@
   } from '@/utils/constants'
   import {asyncRouterMap} from '@/router' //路由表，定义了菜单和按钮的元数据，可以用来生成权限控制的菜单按钮树
   import debounce from 'lodash/debounce'
+  import throttle from 'lodash/throttle'
 
   export default {
     name: 'PermManage',
     data() {
       return {
 
+        filterPlaceholderText: '输入权限名称、权限值过滤',
+
+        roleId: null,
+        roleMenuPermUpdateSum: 0,
+        roleApiPermUpdateSum: 0,
+
+        menuPermList: [],
+        apiPermList: [],
+
+        roleMenuPvals: [],
+        roleApiPvals: [],
+
         menuPermValSet: new Set(),
         apiPermValSet: new Set(),
+
+        btnPvals:[],
 
         btnPermMap:{},//按parent字段分组的map
 
@@ -192,6 +187,18 @@
         },
       }
     },
+
+    computed:{
+      btnCheckboxMap(){
+        let map = {}
+        this.btnPvals.forEach(pval=>{
+          map[pval] = true
+        })
+        return map;
+      },
+
+    },
+
     watch: {
       'filterMenuPermText': debounce(function (val) {
         this.$refs.menuPermTreeRef.filter(val);
@@ -210,16 +217,21 @@
 
     methods: {
 
+      debounce,
+      throttle,
+
+
       //获取后台权限数据
       initData() {
+        this.roleId = this.$route.params.roleId
         permApi.listAllPermissions().then(res => {
           this.btnPermMap = res.data.btnPermMap || {}
           let permMap = res.data.permMap || {}
-          let menuPermList = permMap[permType.MENU] || []
+          this.menuPermList = permMap[permType.MENU] || []
           //let buttonPermList = permMap[permType.BUTTON] || []
-          let apiPermList = permMap[permType.API] || []
-          this.menuPermValSet = new Set(menuPermList.map(p=>p.pval))
-          this.apiPermValSet = new Set(apiPermList.map(p=>p.pval))
+          this.apiPermList = permMap[permType.API] || []
+          this.menuPermValSet = new Set(this.menuPermList.map(p=>p.pval))
+          this.apiPermValSet = new Set(this.apiPermList.map(p=>p.pval))
           //显示菜单权限树
           this.menuPermissionTree = this.generateMenuPermissionTree()
           //显示按钮权限树
@@ -227,6 +239,32 @@
           this.buttonPermissionTree = this.generateButtonPermissionTree(menuPermissionTreeCopy)
           //显示接口权限树
           this.loadApiButtonPermissionTree()
+          //加载角色的权限
+          this.loadRolePerms()
+        })
+      },
+
+      /**
+       * 加载角色的权限并回显
+       */
+      loadRolePerms(){
+        if(!this.roleId){
+          this.$message.error('无法显示角色的权限信息：找不到角色id')
+          return;
+        }
+        roleApi.findRolePerms(this.roleId).then(res=>{
+          if(res.data.menuPvals.length>0){
+            this.roleMenuPvals = res.data.menuPvals
+            this.$refs.menuPermTreeRef.setCheckedKeys(res.data.menuPvals)
+          }
+          if(res.data.apiPvals.length>0){
+            this.roleApiPvals = res.data.menuPvals
+            this.$refs.apiPermTreeRef.setCheckedKeys(res.data.apiPvals)
+
+          }
+          //用于回显角色的按钮权限
+          this.btnPvals = res.data.btnPvals
+
         })
       },
 
@@ -236,64 +274,6 @@
       filterNode(value, data) {
         if (!value) return true;
         return data.pname.indexOf(value) !== -1 || data.pval.indexOf(value) !== -1 ;
-      },
-
-      /**
-       * 添加按钮权限
-       */
-      handleAddButton(data) {
-        this.dialogStatus = 'addButton';
-        resetTemp(this.temp)
-        this.temp.ptype = permType.BUTTON;
-        this.temp.parent = data.pval
-        this.dialogFormVisible = true
-        this.$nextTick(() => this.$refs['dataForm'].clearValidate())
-      },
-      addButton() {
-        this.$refs['dataForm'].validate((valid) => {
-          if (!valid) return;
-          const data = Object.assign({}, this.temp)//copy obj
-          permApi.addPerm(data).then(() => {
-            this.dialogFormVisible = false
-            this.initData()
-            this.$message.success("添加按钮权限成功")
-          })
-        })
-      },
-
-      /**
-       * 更新按钮权限
-       */
-      handleUpdateButton(data) {
-        this.dialogStatus = 'updateButton';
-        this.temp = Object.assign({}, data) // copy obj
-        this.dialogFormVisible = true
-        this.$nextTick(() => this.$refs['dataForm'].clearValidate())
-      },
-      updateButton() {
-        this.$refs['dataForm'].validate((valid) => {
-          if (!valid) return;
-          const data = Object.assign({}, this.temp)//copy obj
-          permApi.updatePerm(data).then(res => {
-            this.dialogFormVisible = false
-            this.initData()
-            this.$message.success("更新按钮权限成功")
-          })
-        })
-      },
-
-      /**
-       * 删除按钮权限
-       */
-      handleDeleleButton(data) {
-        this.$confirm('您确定要永久删除该权限？', '提示', deleteConfirm).then(() => {
-          permApi.deletePerm({pval: data.pval}).then(() => {
-            this.initData()
-            this.$message.success("删除按钮权限成功")
-          })
-        }).catch(() => {
-          this.$message({type: 'info', message: '已取消删除'});
-        });
       },
 
       /////////////////////////// 接口权限树
@@ -408,7 +388,7 @@
       /**
        * 同步菜单权限数据
        */
-      handleSyncMenuPermissionData() {
+      handleUpdateRoleMenuPermission() {
         let list = []
         this.permissionTreeToList(list, this.menuPermissionTree)
         let notSyncedData = list.filter(perm=>{
@@ -444,12 +424,80 @@
         tree.forEach(perm => {
           let temp = Object.assign({}, perm)
           temp.children = []
-          list.push(temp)
           if (perm.children && perm.children.length > 0) {
+            temp.leaf = false
+            console.log("leaf: false")
             this.permissionTreeToList(list, perm.children)
+          }else{
+            temp.leaf = true
+            console.log("leaf: true")
           }
+          list.push(temp)
         })
       },
+
+      ///////////////////
+
+      /**
+       * 更新角色的按钮权限
+       * @param checked
+       */
+      handleUpdateBtnPermForRole(checked,pval){
+        console.log("roleId: "+this.roleId+", checked: "+checked+", pval: "+pval)
+        let data = {
+          rid: this.roleId,
+          pval: pval,
+          ptype: permType.BUTTON
+        }
+        if(checked){
+          roleApi.addRolePerm(data).then(()=>this.$message.success('添加角色的权限成功'))
+        }else{
+          roleApi.deleteRolePerm(data).then(()=>this.$message.success('删除角色的权限成功'))
+        }
+      },
+
+      /**
+       * 更新角色的菜单权限
+       */
+      handleUpdateMenuPermForRole: debounce(function(){
+        this.roleMenuPermUpdateSum++;
+        //因为初始化勾选角色的权限会触发一次，但这次的权限数据跟后台是一样的，所以不需要触发更新角色的权限
+        if(this.roleMenuPvals.length>0 && this.roleMenuPermUpdateSum==1) return;
+        let checkedNodes = this.$refs.menuPermTreeRef.getCheckedNodes();
+        let halfCheckedNodes = this.$refs.menuPermTreeRef.getHalfCheckedNodes();
+        let pvals = [...checkedNodes,...halfCheckedNodes].map(perm=>perm.pval)
+        console.log("pvals to be update: "+pvals)
+        //发送请求更新角色的权限
+        let data = {
+          rid: this.roleId,
+          ptype: permType.MENU,
+          pvals: pvals
+        }
+        roleApi.updateRolePerms(data).then(res=>{
+          this.$message.success('更新角色的菜单权限成功')
+        })
+      },1000),
+
+      /**
+       * 更新角色的接口权限
+       */
+      handleUpdateApiPermForRole: debounce(function(){
+        this.roleApiPermUpdateSum++;
+        //因为初始化勾选角色的权限会触发一次，但这次的权限数据跟后台是一样的，所以不需要触发更新角色的权限
+        if(this.roleApiPvals.length>0 && this.roleApiPermUpdateSum==1) return;
+        let checkedNodes = this.$refs.apiPermTreeRef.getCheckedNodes();
+        let halfCheckedNodes = this.$refs.apiPermTreeRef.getHalfCheckedNodes();
+        let pvals = [...checkedNodes,...halfCheckedNodes].map(perm=>perm.pval)
+        //发送请求更新角色的权限
+        let data = {
+          rid: this.roleId,
+          ptype: permType.API,
+          pvals: pvals
+        }
+        roleApi.updateRolePerms(data).then(res=>{
+          this.$message.success('更新角色的接口权限成功')
+        })
+      },1000),
 
 
 

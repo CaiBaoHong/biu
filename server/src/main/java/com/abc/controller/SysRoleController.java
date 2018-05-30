@@ -1,6 +1,7 @@
 package com.abc.controller;
 
 import com.abc.annotation.PermInfo;
+import com.abc.constant.PermType;
 import com.abc.entity.SysPerm;
 import com.abc.entity.SysRole;
 import com.abc.entity.SysRolePerm;
@@ -22,9 +23,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * created by CaiBaoHong at 2018/4/17 16:41<br>
@@ -159,40 +164,55 @@ public class SysRoleController {
         if (StringUtils.isBlank(vo.getRid())) {
             return Json.fail(oper, "无法更新角色的权限：参数为空（角色id）");
         }
-        if (vo.getPerms().isEmpty()) {
-            return Json.fail(oper, "无法更新角色的权限：参数为空（权限数据）");
+        if (vo.getPtype()==null){
+            return Json.fail(oper, "无法更新角色的权限：参数为空（权限类型）");
         }
+        final String rid = vo.getRid();
+        final Integer ptype = vo.getPtype();
+        final List<String> pvals = vo.getPvals();
 
-        //手动生成id，因为@TableId不支持批量生成
-        Date now = new Date();
-        vo.getPerms().stream().forEach(perm -> {
-            perm.setCreated(now);
-            perm.setUpdated(now);
-        });
+        Wrapper<SysRolePerm> deleteRelationParam = new EntityWrapper<SysRolePerm>().eq("role_id", rid).eq("perm_type", ptype);
+        boolean deleteRelationSucc = rolePermService.delete(deleteRelationParam);
+        if (!deleteRelationSucc) return Json.fail(oper, "无法解除原来的角色-权限关系");
 
-        // 先插入权限值，保证perm表上有值可以做role_perm表的关联
-        permService.saveOrUpdate(vo.getPerms());
-
-
-        // 再查询出来，目的是拿到所有pval对应的pid
-        List<String> pvals = vo.getPerms().stream().map(SysPerm::getPval).collect(Collectors.toList());
-        Wrapper<SysPerm> param = new EntityWrapper<SysPerm>().in("pval", pvals);
-        param.setSqlSelect("pid");
-        List<Object> pids = permService.selectObjs(param);
-
-        // 更新角色的权限值
-        String rid = vo.getRid();
-
-
-        List<SysRolePerm> list = pids.stream().map(pid -> new SysRolePerm(rid, (String) pid)).collect(Collectors.toList());
-
-        boolean deleteSucc = rolePermService.delete(new EntityWrapper<SysRolePerm>().eq("role_id", rid));
-        if (!deleteSucc) return Json.fail(oper, "无法解除原来的角色-权限关系");
-
-        boolean addSucc = rolePermService.insertBatch(list);
-        return Json.result(oper, addSucc);
-
+        if (!pvals.isEmpty()){
+            List<SysRolePerm> list = vo.getPvals().stream().map(pval -> new SysRolePerm(rid, pval,ptype)).collect(Collectors.toList());
+            boolean addSucc = rolePermService.insertBatch(list);
+            return Json.result(oper, addSucc);
+        }
+        return Json.succ(oper);
     }
+
+    @PostMapping("/perm")
+    public Json addPerm(@RequestBody String body){
+        String oper = "add role's permissions";
+
+        JSONObject json = JSON.parseObject(body);
+        String rid = json.getString("rid");
+        Integer ptype = json.getInteger("ptype");
+        String pval = json.getString("pval");
+
+        boolean success = rolePermService.insert(new SysRolePerm(rid, pval, ptype));
+        return Json.result(oper,success);
+    }
+
+    @DeleteMapping("/perm")
+    public Json deletePerm(@RequestBody String body){
+        String oper = "delete role's permissions";
+
+        JSONObject json = JSON.parseObject(body);
+        String rid = json.getString("rid");
+        Integer ptype = json.getInteger("ptype");
+        String pval = json.getString("pval");
+
+        Wrapper<SysRolePerm> deleteParam = new EntityWrapper<SysRolePerm>()
+                .eq("role_id", rid)
+                .eq("perm_val", pval)
+                .eq("perm_type", ptype);
+        boolean success = rolePermService.delete(deleteParam);
+        return Json.succ(oper,success);
+    }
+
 
     /**
      * 列出除了管理员之外的所有角色
@@ -217,8 +237,21 @@ public class SysRoleController {
         if (StringUtils.isBlank(rid)){
             return Json.fail(oper, "无法查询当前角色的权限值：参数为空（角色id）");
         }
-        List<SysPerm> pvals = permService.getPermValsByRoleId(rid);
-        return Json.succ(oper,"pvals",pvals);
+        List<SysPerm> perms = permService.getPermsByRoleId(rid);
+        Map<Integer, List<SysPerm>> permMap = perms.stream().collect(Collectors.groupingBy(SysPerm::getPtype));
+
+        List<String> menuPvals = permMap.getOrDefault(PermType.MENU, new ArrayList<>()).stream()
+                .filter(perm->perm.getLeaf()==true).map(SysPerm::getPval).collect(Collectors.toList());
+
+        List<String> btnPvals = permMap.getOrDefault(PermType.BUTTON, new ArrayList<>()).stream()
+                .map(SysPerm::getPval).collect(Collectors.toList());
+
+        List<String> apiPvals = permMap.getOrDefault(PermType.API, new ArrayList<>()).stream()
+                .filter(perm->perm.getLeaf()==true).map(SysPerm::getPval).collect(Collectors.toList());
+
+        return Json.succ(oper,"menuPvals",menuPvals)
+                .data("btnPvals",btnPvals)
+                .data("apiPvals",apiPvals);
     }
 
 }

@@ -13,15 +13,26 @@ public class SysRolePerm implements Serializable {
 
     @TableField("role_id")
     private String roleId;
-    @TableField("perm_id")
-    private String permId;
+    @TableField("perm_val")
+    private String permVal;
+    @TableField("perm_type")
+    private Integer permType;
 
     public SysRolePerm() {
     }
 
-    public SysRolePerm(String roleId, String permId) {
+    public SysRolePerm(String roleId, String permVal,Integer permType) {
         this.roleId = roleId;
-        this.permId = permId;
+        this.permVal = permVal;
+        this.permType = permType;
+    }
+
+    public Integer getPermType() {
+        return permType;
+    }
+
+    public void setPermType(Integer permType) {
+        this.permType = permType;
     }
 
     public String getRoleId() {
@@ -32,11 +43,11 @@ public class SysRolePerm implements Serializable {
         this.roleId = roleId;
     }
 
-    public String getPermId() {
-        return permId;
+    public String getPermVal() {
+        return permVal;
     }
 
-    public void setPermId(String permId) {
-        this.permId = permId;
+    public void setPermVal(String permVal) {
+        this.permVal = permVal;
     }
 }

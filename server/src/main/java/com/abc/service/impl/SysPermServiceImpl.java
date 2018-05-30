@@ -21,8 +21,8 @@ public class SysPermServiceImpl extends ServiceImpl<SysPermMapper, SysPerm> impl
     }
 
     @Override
-    public List<SysPerm> getPermValsByRoleId(String roleId) {
-        return baseMapper.getPermValsByRoleId(roleId);
+    public List<SysPerm> getPermsByRoleId(String roleId) {
+        return baseMapper.getPermsByRoleId(roleId);
     }
 
     @Override

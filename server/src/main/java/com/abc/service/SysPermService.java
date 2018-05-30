@@ -12,7 +12,7 @@ public interface SysPermService extends IService<SysPerm> {
 
     Set<AuthVo> getPermsByUserId(String userId);
 
-    List<SysPerm> getPermValsByRoleId(String roleId);
+    List<SysPerm> getPermsByRoleId(String roleId);
 
     void saveOrUpdate(List<SysPerm> perms);
 

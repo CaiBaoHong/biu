@@ -12,7 +12,7 @@ public interface SysPermMapper extends BaseMapper<SysPerm> {
 
     List<SysPerm> getPermsByUserId(@Param("userId") String userId);
 
-    List<SysPerm> getPermValsByRoleId(@Param("roleId") String roleId);
+    List<SysPerm> getPermsByRoleId(@Param("roleId") String roleId);
 
     void saveOrUpdate(@Param("perms") List<SysPerm> perms);
 

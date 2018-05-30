@@ -247,7 +247,6 @@ public class SysPermController {
     private List<SysPerm> getApiPerm(Class<?> clz,final String parentPval) {
         //获取clz类上有RequiresPermissions注解的所有方法
         List<Method> apiMethods = MethodUtils.getMethodsListWithAnnotation(clz.getSuperclass(), RequiresPermissions.class);
-        System.out.println("apiMehtod: "+apiMethods.size());
         return apiMethods.stream().map(method -> {
             //pname首选
             //获取method方法上的PermInfo注解的元数据

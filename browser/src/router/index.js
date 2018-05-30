@@ -75,7 +75,7 @@ export const asyncRouterMap = [
         path: 'role_manage/:roleId/assign_perm',
         name: 'role_manage_assign_perm',
         component: _import('_system/role/assign_perm'),
-        meta: { hiddenTag: true },
+        meta: { hiddenTag: true , title: '角色授权'},
       },
       {
         path: 'perm_manage',
@@ -101,7 +101,6 @@ export const asyncRouterMap = [
   {
     path: '/menu2',
     component: Layout,
-    meta: { perm:'m:menu2' },
     children: [{
       path: 'index',
       name: 'menu2',

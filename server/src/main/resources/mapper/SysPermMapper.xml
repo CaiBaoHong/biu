@@ -8,18 +8,18 @@
         AND ur.user_id = #{userId}
     </select>
 
-    <select id="getPermValsByRoleId" resultType="SysPerm">
-        SELECT p.pval,leaf FROM sys_perm p, sys_role_perm rp
-        WHERE p.pid = rp.perm_id AND rp.role_id = #{roleId}
+    <select id="getPermsByRoleId" resultType="SysPerm">
+        SELECT p.pval,p.ptype,p.leaf FROM sys_perm p, sys_role_perm rp
+        WHERE p.pval = rp.perm_val AND rp.role_id = #{roleId}
     </select>
 
     <insert id="saveOrUpdate">
-        INSERT INTO sys_perm (pval,parent,pname,ptype,created) VALUES
+        INSERT INTO sys_perm (pval,parent,pname,ptype,leaf,created) VALUES
         <foreach collection="perms" item="p" separator=",">
-            (#{p.pval},#{p.parent},#{p.pname},#{p.ptype},#{p.created})
+            (#{p.pval},#{p.parent},#{p.pname},#{p.ptype},#{p.leaf},#{p.created})
         </foreach>
         ON DUPLICATE KEY UPDATE
-        pname = VALUES(pname), parent = VALUES(parent), ptype = VALUES(ptype), updated = now()
+        pname = VALUES(pname), parent = VALUES(parent), ptype = VALUES(ptype), leaf = VALUES(leaf), updated = now()
     </insert>
 
 
