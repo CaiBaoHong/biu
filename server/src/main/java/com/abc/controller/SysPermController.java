@@ -39,11 +39,8 @@ public class SysPermController {
     @Autowired
     private SysPermService permService;
 
-    /**
-     * 列出所有类型的权限：菜单、按钮、接口
-     *
-     * @return
-     */
+    @PermInfo("查询所有类型的权限")
+    @RequiresPermissions("a:perm:all:list")
     @GetMapping("/list/all")
     public Json listAllPermission() {
         String oper = "list menu,button,api permissions";
@@ -63,11 +60,8 @@ public class SysPermController {
         }
     }
 
-    /**
-     * 列出按钮权限，数据按parent字段分组
-     *
-     * @return
-     */
+    @PermInfo("查询按钮类型的权限")
+    @RequiresPermissions("a:perm:btn:map")
     @GetMapping("/list/btn_perm_map")
     public Json listButtonPermMapGroupByParent() {
         String oper = "list btn perm map group by parent";
@@ -82,11 +76,8 @@ public class SysPermController {
         return Json.succ(oper, "btnPermMap", buttonsGroupedByParent);
     }
 
-    /**
-     * 同步菜单权限
-     *
-     * @return
-     */
+    @PermInfo("同步菜单权限")
+    @RequiresPermissions("a:perm:menu:sync")
     @PostMapping("/sync/menu")
     public Json syncMenuPermission(@RequestBody String body) {
         String oper = "sync menu permission";
@@ -99,11 +90,8 @@ public class SysPermController {
         return Json.succ(oper);
     }
 
-    /**
-     * 同步接口权限
-     *
-     * @return
-     */
+    @PermInfo("同步接口权限")
+    @RequiresPermissions("a:perm:api:sync")
     @PostMapping("/sync/api")
     public Json syncApiPermission(@RequestBody String body) {
         String oper = "sync api permission";
@@ -117,12 +105,8 @@ public class SysPermController {
         return Json.succ(oper);
     }
 
-    /**
-     * 新增权限
-     *
-     * @param body
-     * @return
-     */
+    @PermInfo("新增权限")
+    @RequiresPermissions("a:perm:add")
     @PostMapping
     public Json add(@RequestBody String body) {
 
@@ -149,12 +133,8 @@ public class SysPermController {
                 .data("created", perm.getCreated());
     }
 
-    /**
-     * 根据权限值删除权限
-     *
-     * @param body
-     * @return
-     */
+    @PermInfo("删除权限")
+    @RequiresPermissions("a:perm:del")
     @DeleteMapping
     public Json delete(@RequestBody String body) {
         String oper = "delete permission";
@@ -168,49 +148,7 @@ public class SysPermController {
         return Json.result(oper, success);
     }
 
-    /**
-     * 查询权限
-     *
-     * @param body
-     * @return
-     */
-    @PermInfo("查询sys_perm")
-    @RequiresPermissions("a:perm:query")
-    @PostMapping("/query")
-    public Json query(@RequestBody String body) {
-
-        String oper = "query permission";
-        log.info("{}, body: {}", oper, body);
-
-        JSONObject json = JSON.parseObject(body);
-        String pname = json.getString("pname");
-        String pval = json.getString("pval");
-
-        int current = json.getIntValue("current");
-        int size = json.getIntValue("size");
-        if (current == 0) current = 1;
-        if (size == 0) size = 10;
-
-        Wrapper<SysPerm> queryParams = new EntityWrapper<>();
-        queryParams.orderBy("created", false);
-        queryParams.orderBy("updated", false);
-        if (StringUtils.isNotBlank(pname)) {
-            queryParams.like("pname", pname);
-        }
-        if (StringUtils.isNotBlank(pval)) {
-            queryParams.like("pval", pval);
-        }
-        Page<SysPerm> page = permService.selectPage(new Page<>(current, size), queryParams);
-        return Json.succ(oper).data("page", page);
-    }
-
-
-    /**
-     * 更新，只允许更新权限名称，不允许更新权限值
-     *
-     * @param body
-     * @return
-     */
+    @PermInfo("更新权限")
     @RequiresPermissions("a:perm:update")
     @PatchMapping("/info")
     public Json update(@RequestBody String body) {
@@ -235,12 +173,12 @@ public class SysPermController {
     @Autowired
     private ApplicationContext context;
 
+    @PermInfo("列出所有接口权限")
+    @RequiresPermissions("a:perm:api:list")
     @GetMapping("/meta/api")
     public Json listApiPermMetadata() {
-
         String oper = "list api permission metadata";
         log.info(oper);
-
         final String basicPackage = ClassUtils.getPackageName(this.getClass());
         Map<String, Object> map = context.getBeansWithAnnotation(Controller.class);
         Collection<Object> beans = map.values();

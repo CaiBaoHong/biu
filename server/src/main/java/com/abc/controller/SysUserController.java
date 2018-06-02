@@ -15,6 +15,7 @@ import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.plugins.Page;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.crypto.RandomNumberGenerator;
 import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.apache.shiro.crypto.hash.Sha256Hash;
@@ -45,11 +46,8 @@ public class SysUserController {
     @Autowired
     private SysUserRoleService sysUserRoleService;
 
-    /**
-     * 添加系统用户
-     * @param body
-     * @return
-     */
+    @PermInfo("添加系统用户")
+    @RequiresPermissions("a:sys:user:add")
     @PostMapping
     public Json add(@RequestBody String body) {
 
@@ -85,11 +83,8 @@ public class SysUserController {
                 .data("created",user.getCreated());
     }
 
-    /**
-     * 删除系统用户
-     * @param body
-     * @return
-     */
+    @PermInfo("删除系统用户")
+    @RequiresPermissions("a:sys:user:del")
     @DeleteMapping
     public Json delete(@RequestBody String body) {
 
@@ -119,11 +114,8 @@ public class SysUserController {
         return Json.result(oper, success);
     }
 
-    /**
-     * 更新系统用户的角色
-     * @param body
-     * @return
-     */
+    @PermInfo("更新系统用户的角色")
+    @RequiresPermissions("a:sys:user:role:update")
     @PatchMapping("/role")
     public Json updateUserRole(@RequestBody String body) {
 
@@ -155,11 +147,8 @@ public class SysUserController {
         return Json.succ(oper);
     }
 
-    /**
-     * 查询系统用户列表
-     * @param body
-     * @return
-     */
+    @PermInfo("查询所有系统用户")
+    @RequiresPermissions("a:sys:user:list")
     @PostMapping("/query")
     public Json query(@RequestBody String body) {
         String oper = "query user";
@@ -170,22 +159,18 @@ public class SysUserController {
         return Json.succ(oper).data("page", page);
     }
 
-    /**
-     * 更新系统用户的信息
-     * @return
-     */
+    @PermInfo("查询系统用户信息")
+    @RequiresPermissions("a:sys:user:info")
     @GetMapping("/info")
     public Json userInfo() {
-        System.out.println("get user info...");
+        String oper = "query user info";
+        log.info("{}", oper);
         Object userInfo = SecurityUtils.getSubject().getPrincipal();
-        return Json.succ("get user info", "userInfo", userInfo);
+        return Json.succ(oper, "userInfo", userInfo);
     }
 
-    /**
-     * 更新系统用户的信息
-     * @param body
-     * @return
-     */
+    @PermInfo("更新系统用户的信息")
+    @RequiresPermissions("a:sys:user:info:update")
     @PatchMapping("/info")
     public Json update(@RequestBody String body) {
 
@@ -216,11 +201,8 @@ public class SysUserController {
         return Json.result(oper, success).data("updated",user.getUpdated());
     }
 
-    /**
-     * 查找用户的角色
-     * @param uid
-     * @return
-     */
+    @PermInfo("查找系统用户的角色")
+    @RequiresPermissions("a:sys:user:role:find")
     @GetMapping("/{uid}/roles")
     public Json findUserRoles(@PathVariable String uid){
         String oper = "find user roles";

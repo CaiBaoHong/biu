@@ -29,21 +29,30 @@ public class AuthController {
 
     private static final Logger log = LoggerFactory.getLogger(AuthController.class);
 
-    // shiro.loginUrl映射到这里，我在这里直接抛出异常交给GlobalExceptionHandler来统一返回json信息，
-    // 您也可以在这里json，不过这样子就跟GlobalExceptionHandler中返回的json重复了。
+    /**
+     * shiro.loginUrl映射到这里，我在这里直接抛出异常交给GlobalExceptionHandler来统一返回json信息，
+     * 您也可以在这里直接返回json，不过这样子就跟GlobalExceptionHandler中返回的json重复了。
+     * @return
+     */
     @RequestMapping("/page/401")
     public Json page401() {
         throw new UnauthenticatedException();
     }
 
-    // shiro.unauthorizedUrl映射到这里。由于demo3统一约定了url方式只做鉴权控制，不做权限访问控制，
-    // 也就是说在ShiroConfig中如果没有roles[js],perms[mvn:install]这样的权限访问控制配置的话，
-    // 是不会跳转到这里的。
+    /**
+     * shiro.unauthorizedUrl映射到这里。由于约定了url方式只做鉴权控制，不做权限访问控制，
+     * 也就是说在ShiroConfig中如果没有做roles[js],perms[mvn:install]这样的权限访问控制配置的话，是不会跳转到这里的。
+     * @return
+     */
     @RequestMapping("/page/403")
     public Json page403() {
         throw new UnauthorizedException();
     }
 
+    /**
+     * 登录成功跳转到这里，直接返回json。但是实际情况是在login方法中登录成功后返回json了。
+     * @return
+     */
     @RequestMapping("/page/index")
     public Json pageIndex() {
         return new Json("index",true,1,"index page",null);

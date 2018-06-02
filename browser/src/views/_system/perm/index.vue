@@ -329,10 +329,7 @@
       handleSyncMenuPermissionData() {
         let list = []
         this.permissionTreeToList(list, this.menuPermissionTree)
-        let notSyncedData = list.filter(perm=>{
-          return !this.menuPermValSet.has(perm.pval)
-        })
-        permApi.syncMenuPerms(notSyncedData).then(res=>{
+        permApi.syncMenuPerms(list).then(res=>{
           this.initData()
           this.$message.success('菜单权限数据同步成功')
         })
@@ -345,10 +342,7 @@
 
         let list = []
         this.permissionTreeToList(list, this.apiPermissionTree)
-        let notSyncedData = list.filter(perm=>{
-          return !this.apiPermValSet.has(perm.pval)
-        })
-        permApi.syncApiPerms(notSyncedData).then(res=>{
+        permApi.syncApiPerms(list).then(res=>{
           this.initData()
           this.$message.success('接口权限数据同步成功')
         })

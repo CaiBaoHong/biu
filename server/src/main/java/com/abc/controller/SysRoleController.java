@@ -50,12 +50,9 @@ public class SysRoleController {
     @Autowired
     private SysRolePermService rolePermService;
 
-    /**
-     * 新增权限
-     *
-     * @param body
-     * @return
-     */
+
+    @PermInfo("新增角色")
+    @RequiresPermissions("a:role:add")
     @PostMapping
     public Json add(@RequestBody String body) {
 
@@ -79,6 +76,8 @@ public class SysRoleController {
                 .data("created",role.getCreated());
     }
 
+    @PermInfo("删除角色")
+    @RequiresPermissions("a:role:del")
     @DeleteMapping
     public Json delete(@RequestBody String body) {
 
@@ -96,12 +95,7 @@ public class SysRoleController {
         return Json.result(oper, success);
     }
 
-    /**
-     * 查询角色
-     *
-     * @param body
-     * @return
-     */
+    @PermInfo("查询角色")
     @RequiresPermissions("a:role:query")
     @PostMapping("/query")
     public Json query(@RequestBody String body) {
@@ -127,12 +121,7 @@ public class SysRoleController {
         return Json.succ(oper).data("page", page);
     }
 
-    /**
-     * 更新角色
-     *
-     * @param body
-     * @return
-     */
+    @PermInfo("更新角色")
     @RequiresPermissions("a:role:update")
     @PatchMapping("/info")
     public Json update(@RequestBody String body) {
@@ -149,13 +138,8 @@ public class SysRoleController {
         return Json.result(oper, success).data("updated", role.getUpdated());
     }
 
-
-    /**
-     * 更新角色的权限
-     *
-     * @param vo
-     * @return
-     */
+    @PermInfo("更新角色的权限")
+    @RequiresPermissions("a:role:perm:update")
     @PatchMapping("/perm")
     public Json updateRolePerm(@RequestBody UpdateRolePermVo vo) {
 
@@ -183,6 +167,8 @@ public class SysRoleController {
         return Json.succ(oper);
     }
 
+    @PermInfo("添加角色的权限")
+    @RequiresPermissions("a:role:perm:add")
     @PostMapping("/perm")
     public Json addPerm(@RequestBody String body){
         String oper = "add role's permissions";
@@ -196,6 +182,8 @@ public class SysRoleController {
         return Json.result(oper,success);
     }
 
+    @PermInfo("删除角色的权限")
+    @RequiresPermissions("a:role:perm:del")
     @DeleteMapping("/perm")
     public Json deletePerm(@RequestBody String body){
         String oper = "delete role's permissions";
@@ -213,23 +201,8 @@ public class SysRoleController {
         return Json.succ(oper,success);
     }
 
-
-    /**
-     * 列出除了管理员之外的所有角色
-     * @return
-     */
-    @GetMapping("/list")
-    public Json listRoles() {
-        String oper = "list all roles except admin";
-        List<SysRole> list = roleService.selectList(new EntityWrapper<SysRole>());
-        return Json.result(oper, true,"list",list);
-    }
-
-    /**
-     * 查找角色的权限
-     * @param rid
-     * @return
-     */
+    @PermInfo("查找角色的权限")
+    @RequiresPermissions("a:role:perm:find")
     @GetMapping("/{rid}/perms")
     public Json findRolePerms(@PathVariable String rid){
         String oper = "find role perms";

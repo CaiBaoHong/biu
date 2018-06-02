@@ -41,13 +41,6 @@ export default {
     })
   },
 
-  findUserRoleIds(uid) {
-    return request({
-      url: '/sys_user/'+uid+'/roles',
-      method: 'get'
-    })
-  },
-
   /**
    * 更新用户的角色
    * @param perm

@@ -52,23 +52,6 @@ export default{
   },
 
   /**
-   * 查询权限
-   * @param queryParam
-   * @param pageParam
-   */
-  queryPerm(queryParam,pageParam) {
-    return request({
-      url: '/sys_perm/query',
-      method: 'post',
-      data: {
-        ...queryParam,
-        current: pageParam.current,
-        size: pageParam.size
-      }
-    })
-  },
-
-  /**
    * 更新权限
    * @param data
    */
@@ -81,7 +64,7 @@ export default{
   },
 
   /**
-   * 更新权限的权限
+   * 查询接口权限元数据
    * @param perm
    */
   listApiPermMetadata() {
@@ -113,16 +96,6 @@ export default{
     })
   },
 
-  /**
-   * 列出所有菜单和按钮
-   * @param perm
-   */
-  listApiPermissions() {
-    return request({
-      url: '/sys_perm/list/api',
-      method: 'get'
-    })
-  }
 
 }
 
