@@ -237,6 +237,7 @@ public class SysRoleController {
         if (StringUtils.isBlank(rid)){
             return Json.fail(oper, "无法查询当前角色的权限值：参数为空（角色id）");
         }
+        SysRole role = roleService.selectById(rid);
         List<SysPerm> perms = permService.getPermsByRoleId(rid);
         Map<Integer, List<SysPerm>> permMap = perms.stream().collect(Collectors.groupingBy(SysPerm::getPtype));
 
@@ -249,7 +250,9 @@ public class SysRoleController {
         List<String> apiPvals = permMap.getOrDefault(PermType.API, new ArrayList<>()).stream()
                 .filter(perm->perm.getLeaf()==true).map(SysPerm::getPval).collect(Collectors.toList());
 
-        return Json.succ(oper,"menuPvals",menuPvals)
+        return Json.succ(oper)
+                .data("role",role)
+                .data("menuPvals",menuPvals)
                 .data("btnPvals",btnPvals)
                 .data("apiPvals",apiPvals);
     }

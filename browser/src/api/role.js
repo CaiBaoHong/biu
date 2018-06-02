@@ -94,17 +94,6 @@ export default {
   },
 
   /**
-   * 列出除了管理员之外的所有角色
-   * @param perm
-   */
-  listRoles() {
-    return request({
-      url: '/sys_role/list',
-      method: 'get'
-    })
-  },
-
-  /**
    * 查选角色的所有权限值
    * @param rid
    */

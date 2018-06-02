@@ -1,5 +1,5 @@
 /**
- * “告警推送”相关接口
+ * “选项”相关接口
  */
 import request from '@/utils/request'
 

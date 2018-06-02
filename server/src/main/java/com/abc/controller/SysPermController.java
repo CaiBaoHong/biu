@@ -61,8 +61,25 @@ public class SysPermController {
             }
             return Json.succ(oper, "permMap", permMap).data("btnPermMap", buttonsGroupedByParent);
         }
+    }
 
+    /**
+     * 列出按钮权限，数据按parent字段分组
+     *
+     * @return
+     */
+    @GetMapping("/list/btn_perm_map")
+    public Json listButtonPermMapGroupByParent() {
+        String oper = "list btn perm map group by parent";
+        EntityWrapper<SysPerm> params = new EntityWrapper<>();
+        params.eq("ptype", PermType.BUTTON);
+        List<SysPerm> buttonPermList = permService.selectList(params);
 
+        Map<String, List<SysPerm>> buttonsGroupedByParent = new HashMap<>();
+        if (buttonPermList!=null&&!buttonPermList.isEmpty()){
+            buttonsGroupedByParent = buttonPermList.stream().collect(Collectors.groupingBy(SysPerm::getParent));
+        }
+        return Json.succ(oper, "btnPermMap", buttonsGroupedByParent);
     }
 
     /**

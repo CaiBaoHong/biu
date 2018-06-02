@@ -107,7 +107,9 @@
           <el-input v-model="temp.pname" placeholder="例如：用户管理、添加用户"></el-input>
         </el-form-item>
         <el-form-item label="权限值" prop="pval">
-          <el-input v-model="temp.pval" placeholder="例如：b:user:manage、b:user:add" :disabled="dialogStatus=='updateButton'"></el-input>
+          <el-input v-model="temp.pval" placeholder="已自动加上前缀'b:'，您只需填剩余部分，如：user:manage、user:add" :disabled="dialogStatus=='updateButton'">
+            <template slot="prepend" v-if="dialogStatus=='addButton'">{{btnPermPrefix}}</template>
+          </el-input>
           <span class="tips-text" >提示：接口权限值建议使用前缀&nbsp;<el-tag size="mini" type="warning" >b:</el-tag></span>
         </el-form-item>
         <el-form-item label="父级权限值" prop="parent">
@@ -131,12 +133,11 @@
 
 <script>
 
+  import tree from '../tree'
   import {parseTime, resetTemp} from '@/utils'
   import permApi from '@/api/perm'
   import {
-    apiPermissionOptions,
-    deleteConfirm,
-    menuButtonPermissionOptions,
+    confirm,
     permType,
     permTypeMap
   } from '@/utils/constants'
@@ -147,6 +148,8 @@
     name: 'PermManage',
     data() {
       return {
+
+        btnPermPrefix: 'b:',
 
         filterPlaceholderText: '输入权限名称、权限值过滤',
 
@@ -164,8 +167,8 @@
         filterApiPermText: '',
 
         permType,
-        menuButtonPermissionOptions,
-        apiPermissionOptions,
+
+
 
         treeProps: {
           label: 'pname',
@@ -216,17 +219,20 @@
       //获取后台权限数据
       initData() {
         permApi.listAllPermissions().then(res => {
+          //按parent分组的按钮权限
           this.btnPermMap = res.data.btnPermMap || {}
+          //含有所有权限map，key是ptype
           let permMap = res.data.permMap || {}
+          //后台存储的所有菜单权限，用于比较前后台数据是否同步
           let menuPermList = permMap[permType.MENU] || []
-          //let buttonPermList = permMap[permType.BUTTON] || []
-          let apiPermList = permMap[permType.API] || []
           this.menuPermValSet = new Set(menuPermList.map(p=>p.pval))
+          //后台存储的所有接口权限，用于比较数据是否同步
+          let apiPermList = permMap[permType.API] || []
           this.apiPermValSet = new Set(apiPermList.map(p=>p.pval))
           //显示菜单权限树
-          this.menuPermissionTree = this.generateMenuPermissionTree()
+          this.menuPermissionTree = tree.generateMenuPermissionTree()
           //显示按钮权限树
-          let menuPermissionTreeCopy = this.generateMenuPermissionTree()
+          let menuPermissionTreeCopy = tree.generateMenuPermissionTree()
           this.buttonPermissionTree = this.generateButtonPermissionTree(menuPermissionTreeCopy)
           //显示接口权限树
           this.loadApiButtonPermissionTree()
@@ -256,6 +262,7 @@
         this.$refs['dataForm'].validate((valid) => {
           if (!valid) return;
           const data = Object.assign({}, this.temp)//copy obj
+          data.pval = this.btnPermPrefix + data.pval
           permApi.addPerm(data).then(() => {
             this.dialogFormVisible = false
             this.initData()
@@ -289,7 +296,7 @@
        * 删除按钮权限
        */
       handleDeleleButton(data) {
-        this.$confirm('您确定要永久删除该权限？', '提示', deleteConfirm).then(() => {
+        this.$confirm('您确定要永久删除该权限？', '提示', confirm).then(() => {
           permApi.deletePerm({pval: data.pval}).then(() => {
             this.initData()
             this.$message.success("删除按钮权限成功")
@@ -298,8 +305,6 @@
           this.$message({type: 'info', message: '已取消删除'});
         });
       },
-
-      /////////////////////////// 接口权限树
 
       /**
        * 从服务器端加载接口权限树
@@ -310,103 +315,13 @@
         })
       },
 
-      /////////////////////////// 按钮权限树
-
       /**
        * 递归生成按钮权限树
        */
       generateButtonPermissionTree(menuPermissionTreeCopy) {
-        return this.mapToButtonPermissionTree(menuPermissionTreeCopy)
+        return tree.mapToButtonPermissionTree(this.btnPermMap,menuPermissionTreeCopy)
       },
 
-      /**
-       * 根据菜单树，生成按钮权限树
-       * @param menuPermissionTree 菜单树
-       */
-      mapToButtonPermissionTree(menuPermissionTree) {
-        return menuPermissionTree.map(perm => {
-
-          if(perm){
-            if(!perm.children){
-              perm.children = []
-            }
-            if(perm.ptype==permType.MENU){
-              let btnPerms = this.btnPermMap[perm.pval]
-              if(btnPerms){
-                btnPerms.forEach(p=>{
-                  perm.children.push(p)
-                })
-              }
-            }
-            if(perm.children&&perm.children.length>0){
-              this.mapToButtonPermissionTree(perm.children)
-            }
-          }
-          return perm;
-
-        })
-      },
-
-      /////////////////////////// 菜单权限树
-
-      /**
-       * 根据前端定义的路由表，生成菜单权限列表
-       */
-      generateMenuPermissionTree() {
-        //预处理
-        let routeArr = asyncRouterMap.map(route => {
-          let temp = Object.assign({}, route) // copy obj
-          if (!temp.alwaysShow && temp.children && temp.children.length == 1) {
-            //如果是只有一个子菜单的顶级菜单，把子级的菜单meta复制到父级用于生成菜单树时显示菜单名称
-            temp.meta = temp.children[0].meta
-            temp.children = []
-          }
-          return temp
-        })
-        //过滤路由表，得到需要进行权限控制的菜单树
-        let permissionControlRoutes = this.filterPermControlRouter(routeArr)
-        //递归形成菜单树
-        return this.mapToMenuPermissionTree(permissionControlRoutes, null)
-      },
-
-      /**
-       * 根据输入的路由表过滤出一个需要进行权限控制的路由表
-       * @param routeArr
-       */
-      filterPermControlRouter(routeArr) {
-        const routes = routeArr.filter(route => {
-          if (route.meta && route.meta.perm) {
-            if (route.children && route.children.length) {
-              route.children = this.filterPermControlRouter(route.children)
-            }
-            return true
-          }
-          return false
-        })
-        return routes
-      },
-
-
-      /**
-       * 根据输入的路由表，生成菜单权限树
-       * @param routeArr 路由表
-       * @param parentPermVal 初始的父级权限值
-       */
-      mapToMenuPermissionTree(routeArr, parentPermVal) {
-        return routeArr.map(route => {
-          let obj = {};
-          if (route.meta && route.meta.perm) {
-            obj.pval = route.meta.perm
-            obj.pname = route.meta.title
-            obj.ptype = permType.MENU;
-            obj.parent = parentPermVal;
-          }
-          if (route.children) {
-            obj.children = this.mapToMenuPermissionTree(route.children, obj.pval)
-          }
-          return obj;
-        })
-      },
 
       /**
        * 同步菜单权限数据
@@ -456,8 +371,6 @@
           list.push(temp)
         })
       },
-
-
 
     }
   }

@@ -27,23 +27,6 @@ export const permType = {
  * 下拉选择框数据：权限类型
  *
  */
-export const menuButtonPermissionOptions = [
-  {value: permType.MENU, label: '菜单'},
-  {value: permType.BUTTON, label: '按钮'},
-]
-
-/**
- * 下拉选择框数据：权限类型
- *
- */
-export const apiPermissionOptions = [
-  {value: permType.API, label: '接口'}
-]
-
-/**
- * 下拉选择框数据：权限类型
- *
- */
 export const permTypeOptions = [
   {value: permType.MENU, label: '菜单'},
   {value: permType.BUTTON, label: '按钮'},
@@ -60,8 +43,9 @@ export const permTypeMap = new Map([
   [permType.API,'测试']
 ])
 
-export const addSuccNotify = { title: '成功',message: '添加成功',type: 'success',duration: 2000}
-export const deleteSuccNotify = { title: '成功',message: '删除成功',type: 'success',duration: 2000}
-export const updateSuccNotify = { title: '成功',message: '更新成功',type: 'success',duration: 2000}
-export const deleteConfirm = { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning'}
+export const confirm = { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning'}
 
+export const root = {
+  rval: 'root',
+  pval: '*'
+}

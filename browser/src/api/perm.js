@@ -103,6 +103,17 @@ export default{
   },
 
   /**
+   * 列出按钮权限，按parent字段分组
+   * @param perm
+   */
+  listBtnPermGroupByParent() {
+    return request({
+      url: '/sys_perm/list/btn_perm_map',
+      method: 'get'
+    })
+  },
+
+  /**
    * 列出所有菜单和按钮
    * @param perm
    */
