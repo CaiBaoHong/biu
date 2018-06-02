@@ -29,7 +29,8 @@ import java.util.stream.Collectors;
 /**
  * created by CaiBaoHong at 2018/4/17 16:41<br>
  */
-@PermInfo(value = "系统权限模块", pval = "a:sys:perm")
+@PermInfo(value = "系统权限模块")
+@RequiresPermissions("a:sys:perm")
 @RestController
 @RequestMapping("/sys_perm")
 public class SysPermController {
@@ -39,8 +40,6 @@ public class SysPermController {
     @Autowired
     private SysPermService permService;
 
-    @PermInfo("查询所有类型的权限")
-    @RequiresPermissions("a:perm:all:list")
     @GetMapping("/list/all")
     public Json listAllPermission() {
         String oper = "list menu,button,api permissions";
@@ -60,8 +59,6 @@ public class SysPermController {
         }
     }
 
-    @PermInfo("查询按钮类型的权限")
-    @RequiresPermissions("a:perm:btn:map")
     @GetMapping("/list/btn_perm_map")
     public Json listButtonPermMapGroupByParent() {
         String oper = "list btn perm map group by parent";
@@ -76,8 +73,6 @@ public class SysPermController {
         return Json.succ(oper, "btnPermMap", buttonsGroupedByParent);
     }
 
-    @PermInfo("同步菜单权限")
-    @RequiresPermissions("a:perm:menu:sync")
     @PostMapping("/sync/menu")
     public Json syncMenuPermission(@RequestBody String body) {
         String oper = "sync menu permission";
@@ -90,8 +85,6 @@ public class SysPermController {
         return Json.succ(oper);
     }
 
-    @PermInfo("同步接口权限")
-    @RequiresPermissions("a:perm:api:sync")
     @PostMapping("/sync/api")
     public Json syncApiPermission(@RequestBody String body) {
         String oper = "sync api permission";
@@ -101,12 +94,9 @@ public class SysPermController {
             permService.delete(new EntityWrapper<SysPerm>().eq("ptype",PermType.API));
             permService.saveOrUpdate(notSyncedPerms);
         }
-
         return Json.succ(oper);
     }
 
-    @PermInfo("新增权限")
-    @RequiresPermissions("a:perm:add")
     @PostMapping
     public Json add(@RequestBody String body) {
 
@@ -133,8 +123,6 @@ public class SysPermController {
                 .data("created", perm.getCreated());
     }
 
-    @PermInfo("删除权限")
-    @RequiresPermissions("a:perm:del")
     @DeleteMapping
     public Json delete(@RequestBody String body) {
         String oper = "delete permission";
@@ -148,8 +136,6 @@ public class SysPermController {
         return Json.result(oper, success);
     }
 
-    @PermInfo("更新权限")
-    @RequiresPermissions("a:perm:update")
     @PatchMapping("/info")
     public Json update(@RequestBody String body) {
 
@@ -173,8 +159,6 @@ public class SysPermController {
     @Autowired
     private ApplicationContext context;
 
-    @PermInfo("列出所有接口权限")
-    @RequiresPermissions("a:perm:api:list")
     @GetMapping("/meta/api")
     public Json listApiPermMetadata() {
         String oper = "list api permission metadata";
@@ -241,11 +225,22 @@ public class SysPermController {
         }
         String pnamePrimary = null;
         String pvalPrimary = null;
+        String pvalPrimary2 = null;
         if (piAnno != null && piAnno.value() != null) {
             pnamePrimary = piAnno.value();
             pvalPrimary = piAnno.pval();
         }
-        //备选值
+
+        //备选值1
+        RequiresPermissions rpAnno = AnnotationUtils.getAnnotation(clz, RequiresPermissions.class);
+        if (rpAnno == null) {
+            rpAnno = AnnotationUtils.getAnnotation(clz.getSuperclass(), RequiresPermissions.class);
+        }
+        if (rpAnno != null) {
+            pvalPrimary2 = rpAnno.value()[0];
+        }
+
+        //备选值2
         String pnameSub = ClassUtils.getShortName(clz);
         RequestMapping rmAnno = AnnotationUtils.getAnnotation(clz, RequestMapping.class);
         if (rmAnno == null) {
@@ -260,6 +255,8 @@ public class SysPermController {
         }
         if (StringUtils.isNotBlank(pvalPrimary)) {
             perm.setPval(pvalPrimary);
+        }else if(StringUtils.isNotBlank(pvalPrimary2)){
+            perm.setPval(pvalPrimary2);
         } else {
             perm.setPval("a:"+pvalSub.substring(1).replace("/",":"));
         }

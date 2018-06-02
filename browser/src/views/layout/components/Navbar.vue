@@ -22,13 +22,37 @@
               首页
             </el-dropdown-item>
           </router-link>
+          <el-dropdown-item>
+            <span @click="handleUpdatePwd" style="display:block;">修改密码</span>
+          </el-dropdown-item>
           <el-dropdown-item divided>
             <span @click="logout" style="display:block;">退出</span>
           </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </div>
+    <!--弹出窗口：修改密码-->
+    <el-dialog title="修改密码" :visible.sync="dialogVisible" width="20%">
+      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="120px">
+
+        <el-form-item label="密码" prop="pwd">
+          <el-input type="password" v-model="temp.pwd"></el-input>
+        </el-form-item>
+
+        <el-form-item label="确认密码" prop="pwd2">
+          <el-input type="password" v-model="temp.pwd2"></el-input>
+        </el-form-item>
+
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="updatePwd">确定</el-button>
+      </div>
+    </el-dialog>
   </el-menu>
+
+
+
 </template>
 
 <script>
@@ -36,18 +60,49 @@ import { mapGetters } from 'vuex'
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
 import ErrorLog from '@/components/ErrorLog'
-import Screenfull from '@/components/Screenfull'
-import LangSelect from '@/components/LangSelect'
-import ThemePicker from '@/components/ThemePicker'
+import userApi from '@/api/user'
 
 export default {
+
+  data(){
+
+    let validatePass = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请输入密码'));
+      } else {
+        if (this.temp.pwd2 !== '') {
+          this.$refs.dataForm.validateField('pwd2');
+        }
+        callback();
+      }
+    };
+
+    let validatePass2 = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请再次输入密码'));
+      } else if (value != this.temp.pwd) {
+        callback(new Error('两次输入密码不一致!'));
+      } else {
+        callback();
+      }
+    };
+    return {
+      dialogVisible: false,
+      temp: {
+        pwd: null,
+        pwd2: null
+      },
+      rules: {
+        pwd: [{validator: validatePass, trigger: 'blur'}],
+        pwd2: [{validator: validatePass2, trigger: 'change'}]
+      },
+    }
+
+  },
   components: {
     Breadcrumb,
     Hamburger,
     ErrorLog,
-    Screenfull,
-    LangSelect,
-    ThemePicker
   },
   computed: {
     ...mapGetters([
@@ -65,7 +120,23 @@ export default {
       this.$store.dispatch('LogOut').then(() => {
         location.reload()// In order to re-instantiate the vue-router object to avoid bugs
       })
-    }
+    },
+    handleUpdatePwd(){
+      this.dialogVisible = true
+      this.$nextTick(() => this.$refs['dataForm'].clearValidate())
+    },
+    updatePwd(){
+      this.$refs['dataForm'].validate((valid) => {
+        if (!valid) return
+        const tempData = Object.assign({}, this.temp)//copy obj
+        userApi.updatePwd(tempData).then(res => {
+          this.dialogVisible = false
+          this.$message.success("更新密码成功")
+        })
+      })
+    },
+
+
   }
 }
 </script>

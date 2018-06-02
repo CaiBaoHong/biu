@@ -19,6 +19,7 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.crypto.RandomNumberGenerator;
 import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.apache.shiro.crypto.hash.Sha256Hash;
+import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -199,6 +200,33 @@ public class SysUserController {
         boolean success = sysUserService.updateById(user);
 
         return Json.result(oper, success).data("updated",user.getUpdated());
+    }
+
+    @PatchMapping("/pwd")
+    public Json updatePwd(@RequestBody String body) {
+
+        String oper = "update pwd";
+        log.info("{}, body: {}", oper, body);
+
+        JSONObject json = JSON.parseObject(body);
+        String pwd = json.getString("pwd");
+
+        if (StringUtils.isBlank(pwd)) {
+            return Json.fail(oper,"无法更新密码：密码为空");
+        }
+        //密码加密
+        RandomNumberGenerator saltGen = new SecureRandomNumberGenerator();
+        String salt = saltGen.nextBytes().toBase64();
+        String hashedPwd = new Sha256Hash(pwd, salt, 1024).toBase64();
+        SysUser currentUser = (SysUser) SecurityUtils.getSubject().getPrincipal();
+
+        SysUser updateData = new SysUser();
+        updateData.setUid(currentUser.getUid());
+        updateData.setPwd(hashedPwd);
+        updateData.setSalt(salt);
+        updateData.setUpdated(new Date());
+        boolean success = sysUserService.updateById(updateData);
+        return Json.result(oper, success).data("updated",updateData.getUpdated());
     }
 
     @PermInfo("查找系统用户的角色")

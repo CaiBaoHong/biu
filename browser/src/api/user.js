@@ -25,6 +25,14 @@ export default {
     })
   },
 
+  updatePwd(data) {
+    return request({
+      url: '/sys_user/pwd',
+      method: 'patch',
+      data
+    })
+  },
+
   addUser(data) {
     return request({
       url: '/sys_user',
