@@ -14,9 +14,14 @@ import store from './store'
 import './icons' // icon
 import './errorLog'// error log
 import './permission' // permission control
-
-
 import * as filters from './filters' // global filters
+
+// 权限指令
+import hasPerm from '@/directive/permission/hasPerm'
+import perm from '@/directive/permission/perm'
+// 注册全局的权限判断方法和指令
+Vue.prototype.$hasPerm = hasPerm
+Vue.directive('perm', perm)
 
 Vue.use(Element, {
   size: 'medium', // set element-ui default size

@@ -9,7 +9,7 @@ NProgress.configure({ showSpinner: false })// NProgress Configuration
 
 /**
  * 匹配权限
- * @param userPerms 用户拥有的权限集合，后台返回来，存在vuex，数据类型是Set
+ * @param userPerms 用户拥有的权限集合，后台返回来，存在vuex，数据类型是数组
  * @param routerPerm 定义的src/router/index.js的路由表asyncRouterMap中
  * @returns {*}
  */
@@ -28,9 +28,7 @@ const whiteList = new Set([loginRoute,'/authredirect'])// no redirect whitelist
 router.beforeEach((to, from, next) => {
 
   NProgress.start()
-
   let token = getToken();
-
   let hasToken = token != 'undefined' && token != undefined && token !=null && token != '';
 
   if (hasToken) {
@@ -41,10 +39,15 @@ router.beforeEach((to, from, next) => {
       NProgress.done() // if current page is dashboard will not trigger	afterEach hook, so manually handle it
     } else {
       // 1.2 如果不是去登录页，判断是否有访问权限
-      // 用户刷新页面会导致vuex状态清空，或者用户首次登录，vuex中还没有权限信息。都要调用后台接口获得用户信息
-      if (!store.getters.perms || store.getters.perms.length === 0) {
+      if(store.getters.visitor){
+        // 1.2.1 若该标记为true,是因为GetUserInfo返回结果发现用户信息中roles或perms为空数组，即未配置任何角色或权限，
+        // 所以视为游客visitor给放行，放行后游客只能看到公共可以访问的菜单(即src/router/index.js中没有配置perm属性的路由)。
+        next()
+      }else if (!store.getters.perms || store.getters.perms.length === 0) {
+        // 1.2.2 检查发现不是游客且未加载用户权限信息，应该调用接口加载用户权限信息
+        // 用户刷新页面会导致vuex状态清空，或者用户首次登录，vuex中还没有权限信息。都要调用后台接口获得用户信息
         store.dispatch('GetUserInfo').then(res => {
-          const perms = res.data.perms // note: roles must be a array! such as: ['editor','develop']
+          const perms = res.data.perms // note: roles must be a array! such as: [{name:'菜单1',val:'menu:1'}]
           store.dispatch('GenerateRoutes', { perms }).then(() => { // 根据roles权限生成可访问的路由表
             router.addRoutes(store.getters.addRouters) // 动态添加可访问路由表
             next({ ...to, replace: true }) // hack方法 确保addRoutes已完成 ,set the replace: true so the navigation will not leave a history record
@@ -56,19 +59,13 @@ router.beforeEach((to, from, next) => {
           })
         })
       } else {
+        // 1.2.3 如果vuex种有权限信息，匹配权限信息，匹配ok则放行
         if (hasPermission(store.getters.perms, to.meta.perm)) {
           next()
         } else {
           next({ path: '/401', replace: true, query: { noGoBack: true }})
         }
       }
-
-
-
-
-
-
-
     }
   } else {
     // 2.没有token

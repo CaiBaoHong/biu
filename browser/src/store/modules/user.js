@@ -12,6 +12,7 @@ const user = {
     nick: '',
     avatar: avatorImg,
     introduction: '',
+    visitor: false,
     roles: [],
     perms: [],
     setting: {
@@ -49,6 +50,9 @@ const user = {
     },
     SET_PERMS: (state, perms) => {
       state.perms = perms
+    },
+    SET_VISITOR: (state, visitor) => {
+      state.visitor = visitor
     }
   },
 
@@ -72,11 +76,16 @@ const user = {
     GetUserInfo({ commit, state }) {
       return new Promise((resolve, reject) => {
         authApi.getUserInfo(state.token).then(res => {
-
           if (!res) reject('res is null');
           if (!res.data) reject('res.data is null');
-          if (!res.data.roles) reject('res.data.roles is null');
-          if (!res.data.perms) reject('res.data.perms is null');
+          if(!res.data.perms
+            ||res.data.perms.length==0
+            ||!res.data.perms
+            ||res.data.perms.length==0){
+            commit('SET_VISITOR', true)
+          }else{
+            commit('SET_VISITOR', false)
+          }
           commit('SET_ROLES', res.data.roles)
           commit('SET_PERMS', res.data.perms)
           commit('SET_NICK', res.data.nick)

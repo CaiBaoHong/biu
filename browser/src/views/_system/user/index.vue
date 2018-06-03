@@ -4,12 +4,12 @@
     <el-row>
       <el-input style="width:200px;" v-model="tableQuery.nick" placeholder="昵称"></el-input>
       <span style="margin-right: 15px;"></span>
-      <el-tooltip class="item" content="搜索" placement="top">
-        <el-button icon="el-icon-search" circle @click="fetchData(1)"></el-button>
+      <el-tooltip class="item" content="搜索" placement="top" >
+        <el-button icon="el-icon-search" circle @click="fetchData(1)" v-perm="'b:user:query'"></el-button>
       </el-tooltip>
     </el-row>
     <div style="margin-bottom: 30px;"></div>
-    <el-button type="primary" icon="el-icon-plus" size="mini" @click="handleCreate">{{textMap.create}}</el-button>
+    <el-button type="primary" icon="el-icon-plus" size="mini" @click="handleCreate" v-perm="'b:user:add'">{{textMap.create}}</el-button>
     <div style="margin-bottom: 30px;"></div>
     <!--列表-->
     <el-table style="width: 100%"
