@@ -45,7 +45,7 @@
           </div>
           <el-input class="mgb-15" :placeholder="filterPlaceholderText" v-model="filterButtonPermText"></el-input>
           <el-tree ref="buttonPermTreeRef" :filter-node-method="filterNode" :data="buttonPermissionTree"
-                   :props="treeProps" node-key="pid" default-expand-all :expand-on-click-node="false">
+                   :props="treeProps" node-key="pval" default-expand-all :expand-on-click-node="false">
             <span class="custom-tree-node" slot-scope="{ node, data }">
                 <span>
                   <span class="mgl-10">{{ data.pname }}</span>
