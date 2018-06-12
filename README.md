@@ -27,6 +27,8 @@
 git clone https://github.com/CaiBaoHong/biu
 ~~~
 
+执行`_sql/biu.sql`导入mysql数据库
+
 打开IDEA，`File - Settings - Build Execution Deployment - Build Tools - Gradle`配置好本机Gradle的路径。
 
 打开IDEA，`File - Open`打开biu项目的路径，导入项目，弹出Gradle导入引导窗口的，按下一步就行，确定后项目开始初始化，

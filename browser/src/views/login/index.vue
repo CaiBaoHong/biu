@@ -26,11 +26,15 @@
       </el-button>
       <div class="tips">
         <span>管理员帐号 : admin</span>
-        <span>密码 : 随便填</span>
+        <span>密码 : 123456</span>
       </div>
       <div class="tips">
-        <span style="margin-right:18px;">普通用户帐号 : editor</span>
-        <span>密码 : 随便填</span>
+        <span style="margin-right:18px;">普通用户帐号 : guanyu</span>
+        <span>密码 : 123456</span>
+      </div>
+      <div class="tips">
+        <span style="margin-right:18px;">普通用户帐号 : zhangfei</span>
+        <span>密码 : 123456</span>
       </div>
 
     </el-form>
